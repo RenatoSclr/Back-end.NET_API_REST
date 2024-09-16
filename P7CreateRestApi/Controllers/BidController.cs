@@ -18,35 +18,64 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpGet]
         [Route("api/get/{id}")]
-        public IActionResult Get(BidDTO bidDTO)
+        public IActionResult GetBidById(int id)
         {
-            // TODO: check data valid and save to db, after saving return bid list
+            
+            var bidDTO = _bidService.GetBidDTOById(id);
+            if (bidDTO == null)
+            {
+                return NotFound($"Bid with Id = {id} not found.");
+            }
 
-            return Ok();
+            return Ok(bidDTO);
         }
 
         [HttpGet]
         [Route("api/get")]
-        public IActionResult GetAll(List<BidDTO> bidDTO)
+        public IActionResult GetAllBid()
         {
-            // TODO: check data valid and save to db, after saving return bid list
-            return Ok();
+            var bidDTO = _bidService.GetAllBidDTOs();
+            return Ok(bidDTO);
         }
 
         [HttpPost]
         [Route("api/create")]
         public IActionResult CreateBid([FromBody] BidDTO bidDTO)
         {
-            // TODO: check data valid and save to db, after saving return bid list
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
+
+             _bidService.CreateBid(bidDTO);
+
             return Ok();
         }
 
 
         [HttpPut]
         [Route("api/update/{id}")]
-        public IActionResult UpdateBid(int id, [FromBody] BidDTO bidDTO)
+        public IActionResult UpdateBid(int id, [FromBody] BidDTO updatedBid)
         {
-            // TODO: check required fields, if valid call service to update Bid and return list Bid
+           if (!ModelState.IsValid) 
+           {
+                return BadRequest(ModelState);
+           }
+
+            if (id != updatedBid.BidDTOId)
+            {
+                return BadRequest("Product ID mismatch.");
+            }
+
+
+           var existingBid = _bidService.GetBidById(id);
+           if (existingBid == null)
+           {
+                return NotFound($"Bid with Id = {id} not found.");
+           }
+
+           _bidService.UpdateBid(updatedBid, existingBid);
+
             return Ok();
         }
 
@@ -54,6 +83,13 @@ namespace Dot.Net.WebApi.Controllers
         [Route("api/delete/{id}")]
         public IActionResult DeleteBid(int id)
         {
+            var existingBid = _bidService.GetBidById(id);
+            if (existingBid == null) 
+            {
+                return NotFound($"Bid with Id = {id} not found.");
+            }
+
+            _bidService.DeleteBid(id);
             return Ok();
         }
     }

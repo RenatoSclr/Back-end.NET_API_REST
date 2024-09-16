@@ -7,20 +7,14 @@ namespace Dot.Net.WebApi.Services.IService
     {
         List<BidDTO> GetAllBidDTOs();
 
-        void CreateBid(Bid bid);
+        void CreateBid(BidDTO bidDTO);
 
         Bid GetBidById(int id);
 
         BidDTO GetBidDTOById(int id);
 
-        void UpdateBid(Bid bid);
+        void UpdateBid(BidDTO bidDTO, Bid bid);
 
         void DeleteBid(int id);
-
-        BidDTO MapToBidDTO(Bid bid);
-
-        List<BidDTO> MapToBidDTOList(List<Bid> bidList);
-
-        Bid MapTOBid(BidDTO bidDTO);
     }
 }

@@ -27,9 +27,16 @@ namespace Dot.Net.WebApi.Services
             _bidRepository.Save();
         }
 
-        public Bid MapToBid(BidDTO bidDTO)
+        public void UpdateBid(BidDTO bidDTO, Bid existingBid)
         {
-            var bid = new Bid();
+            Bid bid = MapToBid(bidDTO, existingBid);
+            _bidRepository.Update(bid);
+            _bidRepository.Save();
+        }
+
+        private Bid MapToBid(BidDTO bidDTO, Bid existingBid = null)
+        {
+            var bid = existingBid ?? new Bid();
             bid.Account = bidDTO.Account;
             bid.BidType = bidDTO.BidDTOType;
             bid.BidQuantity = bidDTO.BidDTOQuantity;
@@ -48,22 +55,13 @@ namespace Dot.Net.WebApi.Services
             return MapToBidDTO(bid);
         }
 
-
-        public void UpdateBid(BidDTO bidDTO)
-        {
-            Bid bid = MapToBid(bidDTO);
-            _bidRepository.Update(bid);
-            _bidRepository.Save();
-
-        }
-
         public void DeleteBid(int id)
         {
             _bidRepository.Delete(id);
             _bidRepository.Save();
         }
 
-        public BidDTO MapToBidDTO(Bid bid) 
+        private BidDTO MapToBidDTO(Bid bid) 
         {
             BidDTO bidDTO = new BidDTO();
 
@@ -75,7 +73,7 @@ namespace Dot.Net.WebApi.Services
             return bidDTO;
         }
 
-        public List<BidDTO> MapToBidDTOList(List<Bid> bidList)
+        private List<BidDTO> MapToBidDTOList(List<Bid> bidList)
         {
             var bidDTOlist = new List<BidDTO>();
             foreach (var bid in bidList) 
