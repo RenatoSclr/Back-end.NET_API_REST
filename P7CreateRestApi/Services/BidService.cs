@@ -1,11 +1,12 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Domain.IRepositories;
+using Dot.Net.WebApi.Services.IService;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using P7CreateRestApi.Domain.DTO;
 
 namespace Dot.Net.WebApi.Services
 {
-    public class BidService
+    public class BidService : IBidService
     {
         private readonly IBidRepository _bidRepository;
 
