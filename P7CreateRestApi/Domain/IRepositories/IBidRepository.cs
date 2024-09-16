@@ -1,8 +1,8 @@
 ﻿namespace Dot.Net.WebApi.Domain.IRepositories
 {
-    public interface IBidRepository : IRepository<BidList>
+    public interface IBidRepository : IRepository<Bid>
     {
-        void Update(BidList entity);
+        void Update(Bid entity);
         void Save();
     }
 }

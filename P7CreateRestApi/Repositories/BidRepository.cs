@@ -5,7 +5,7 @@ using P7CreateRestApi.Repositories;
 
 namespace Dot.Net.WebApi.Repositories
 {
-    public class BidRepository : Repository<BidList>, IBidRepository
+    public class BidRepository : Repository<Bid>, IBidRepository
     {
         private readonly LocalDbContext _context;
         public BidRepository(LocalDbContext context) : base(context)
@@ -18,7 +18,7 @@ namespace Dot.Net.WebApi.Repositories
             _context.SaveChanges();
         }
 
-        public void Update(BidList entity)
+        public void Update(Bid entity)
         {
             _context.Update(entity);
         }
