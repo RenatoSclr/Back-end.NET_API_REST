@@ -1,5 +1,4 @@
-﻿using Dot.Net.WebApi.Controllers.Domain;
-using Dot.Net.WebApi.Data;
+﻿using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Domain.IRepositories;
 using P7CreateRestApi.Repositories;

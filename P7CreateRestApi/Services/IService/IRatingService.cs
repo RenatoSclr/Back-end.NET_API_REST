@@ -1,5 +1,4 @@
-﻿using Dot.Net.WebApi.Controllers.Domain;
-using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Domain;
 using P7CreateRestApi.Domain.DTO;
 
 namespace Dot.Net.WebApi.Services.IService
