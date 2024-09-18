@@ -1,6 +1,6 @@
-namespace Dot.Net.WebApi.Controllers.Domain
+﻿namespace P7CreateRestApi.Domain.DTO
 {
-    public class Rating
+    public class RatingDTO
     {
         public int Id { get; set; }
         public string MoodysRating { get; set; }
