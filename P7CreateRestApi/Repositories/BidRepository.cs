@@ -13,14 +13,17 @@ namespace Dot.Net.WebApi.Repositories
             _context = context;
         }
 
-        public void Save()
+       
+        public async Task SaveAsync()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Update(Bid entity)
+        
+        public async Task UpdateAsync(Bid entity)
         {
             _context.Update(entity);
+            await SaveAsync(); 
         }
     }
 }

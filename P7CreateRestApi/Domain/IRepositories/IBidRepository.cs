@@ -2,7 +2,7 @@
 {
     public interface IBidRepository : IRepository<Bid>
     {
-        void Update(Bid entity);
-        void Save();
+        Task UpdateAsync(Bid entity);
+        Task SaveAsync();
     }
 }

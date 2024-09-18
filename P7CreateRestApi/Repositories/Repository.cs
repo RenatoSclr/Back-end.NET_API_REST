@@ -15,25 +15,28 @@ namespace P7CreateRestApi.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public  IEnumerable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return _dbSet.ToList();
+            return await _dbSet.ToListAsync();
         }
 
-        public T GetById(int id)
+        public async Task<T> GetByIdAsync(int id)
         {
-            return  _dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public void Add(T entity)
+        public async Task AddAsync(T entity)
         {
-             _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var entity = GetById(id);
-            _dbSet.Remove(entity);
+            var entity = await GetByIdAsync(id);
+            if (entity != null)
+            {
+                _dbSet.Remove(entity);
+            }
         }
     }
 }

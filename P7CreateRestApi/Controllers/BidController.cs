@@ -3,6 +3,7 @@ using Dot.Net.WebApi.Services;
 using Dot.Net.WebApi.Services.IService;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Domain.DTO;
+using System.Threading.Tasks;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -11,85 +12,88 @@ namespace Dot.Net.WebApi.Controllers
     public class BidController : ControllerBase
     {
         private readonly IBidService _bidService;
+
         public BidController(IBidService bidService)
         {
             _bidService = bidService;
         }
 
+      
         [HttpGet]
         [Route("api/get/{id}")]
-        public IActionResult GetBidById(int id)
+        public async Task<IActionResult> GetBidById(int id)
         {
-            
-            var bidDTO = _bidService.GetBidDTOById(id);
-            if (bidDTO == null)
+            var bid = await _bidService.GetBidByIdAsync(id);  
+
+            if (bid == null)
             {
                 return NotFound($"Bid with Id = {id} not found.");
             }
 
+            var bidDTO = await _bidService.GetBidDTOByIdAsync(id);
             return Ok(bidDTO);
         }
 
+     
         [HttpGet]
         [Route("api/get")]
-        public IActionResult GetAllBid()
+        public async Task<IActionResult> GetAllBid()
         {
-            var bidDTO = _bidService.GetAllBidDTOs();
-            return Ok(bidDTO);
+            var bidDTOs = await _bidService.GetAllBidDTOsAsync();  
+            return Ok(bidDTOs);
         }
 
+       
         [HttpPost]
         [Route("api/create")]
-        public IActionResult CreateBid([FromBody] BidDTO bidDTO)
+        public async Task<IActionResult> CreateBid([FromBody] BidDTO bidDTO)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState); 
+                return BadRequest(ModelState);
             }
 
-             _bidService.CreateBid(bidDTO);
-
+            await _bidService.CreateBidAsync(bidDTO);  
             return Ok();
         }
 
-
+  
         [HttpPut]
         [Route("api/update/{id}")]
-        public IActionResult UpdateBid(int id, [FromBody] BidDTO updatedBid)
+        public async Task<IActionResult> UpdateBid(int id, [FromBody] BidDTO updatedBid)
         {
-           if (!ModelState.IsValid) 
-           {
+            if (!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
-           }
+            }
 
             if (id != updatedBid.BidDTOId)
             {
-                return BadRequest("Product ID mismatch.");
+                return BadRequest("Bid ID mismatch.");
             }
 
-
-           var existingBid = _bidService.GetBidById(id);
-           if (existingBid == null)
-           {
-                return NotFound($"Bid with Id = {id} not found.");
-           }
-
-           _bidService.UpdateBid(updatedBid, existingBid);
-
-            return Ok();
-        }
-
-        [HttpDelete]
-        [Route("api/delete/{id}")]
-        public IActionResult DeleteBid(int id)
-        {
-            var existingBid = _bidService.GetBidById(id);
-            if (existingBid == null) 
+            var existingBid = await _bidService.GetBidByIdAsync(id);  
+            if (existingBid == null)
             {
                 return NotFound($"Bid with Id = {id} not found.");
             }
 
-            _bidService.DeleteBid(id);
+            await _bidService.UpdateBidAsync(updatedBid, existingBid);  
+            return Ok();
+        }
+
+      
+        [HttpDelete]
+        [Route("api/delete/{id}")]
+        public async Task<IActionResult> DeleteBid(int id)
+        {
+            var existingBid = await _bidService.GetBidByIdAsync(id); 
+            if (existingBid == null)
+            {
+                return NotFound($"Bid with Id = {id} not found.");
+            }
+
+            await _bidService.DeleteBidAsync(id);  
             return Ok();
         }
     }

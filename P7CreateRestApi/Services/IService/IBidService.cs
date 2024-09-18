@@ -5,16 +5,16 @@ namespace Dot.Net.WebApi.Services.IService
 {
     public interface IBidService
     {
-        List<BidDTO> GetAllBidDTOs();
+        Task<List<BidDTO>> GetAllBidDTOsAsync();
 
-        void CreateBid(BidDTO bidDTO);
+        Task CreateBidAsync(BidDTO bidDTO);
 
-        Bid GetBidById(int id);
+        Task<Bid> GetBidByIdAsync(int id);
 
-        BidDTO GetBidDTOById(int id);
+        Task<BidDTO> GetBidDTOByIdAsync(int id);
 
-        void UpdateBid(BidDTO bidDTO, Bid bid);
+        Task UpdateBidAsync(BidDTO bidDTO, Bid bid);
 
-        void DeleteBid(int id);
+        Task DeleteBidAsync(int id);
     }
 }
