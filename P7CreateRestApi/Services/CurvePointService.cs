@@ -70,6 +70,7 @@ namespace Dot.Net.WebApi.Services
         {
             return new CurvePointDTO
             {
+                Id = curvePoint.Id,
                 CurvePointDTOValue = curvePoint.CurvePointValue,
                 CurveDTOId = curvePoint.CurveId,
                 AsOfDate = curvePoint.AsOfDate,
@@ -82,6 +83,7 @@ namespace Dot.Net.WebApi.Services
         {
             return curvePointList.Select(curvePoint => new CurvePointDTO
             {
+                Id = curvePoint.Id,
                 CurvePointDTOValue = curvePoint.CurvePointValue,
                 CurveDTOId = curvePoint.CurveId,
                 AsOfDate = curvePoint.AsOfDate,
