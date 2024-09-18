@@ -1,6 +1,6 @@
-namespace Dot.Net.WebApi.Controllers
+﻿namespace P7CreateRestApi.Domain.DTO
 {
-    public class RuleName
+    public class RuleNameDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
