@@ -1,5 +1,7 @@
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Services.IService;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Domain.DTO;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -7,52 +9,89 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class TradeController : ControllerBase
     {
-        // TODO: Inject Trade service
+        private readonly ITradeService _tradeService;
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        public TradeController(ITradeService tradeService)
         {
-            // TODO: find all Trade, add to model
-            return Ok();
+            _tradeService = tradeService;
         }
 
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddTrade([FromBody]Trade trade)
-        {
-            return Ok();
-        }
 
         [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Trade trade)
+        [Route("api/get/{id}")]
+        public async Task<IActionResult> GetTradeById(int id)
         {
-            // TODO: check data valid and save to db, after saving return Trade list
-            return Ok();
+            var trade = await _tradeService.GetTradeByIdAsync(id);
+
+            if (trade == null)
+            {
+                return NotFound($"Trade with Id = {id} not found.");
+            }
+
+            var tradeDTO = await _tradeService.GetTradeDTOByIdAsync(id);
+            return Ok(tradeDTO);
         }
 
+
         [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+        [Route("api/get")]
+        public async Task<IActionResult> GetAllTrade()
         {
-            // TODO: get Trade by Id and to model then show to the form
-            return Ok();
+            var tradeDTOs = await _tradeService.GetAllTradeDTOsAsync();
+            return Ok(tradeDTOs);
         }
+
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateTrade(int id, [FromBody] Trade trade)
+        [Route("api/create")]
+        public async Task<IActionResult> CreateTrade([FromBody] TradeDTO tradeDTO)
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _tradeService.CreateTradeAsync(tradeDTO);
             return Ok();
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteTrade(int id)
+
+        [HttpPut]
+        [Route("api/update/{id}")]
+        public async Task<IActionResult> UpdateTrade(int id, [FromBody] TradeDTO updatedTrade)
         {
-            // TODO: Find Trade by Id and delete the Trade, return to Trade list
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != updatedTrade.TradeId)
+            {
+                return BadRequest("Trade ID mismatch.");
+            }
+
+            var existingTrade = await _tradeService.GetTradeByIdAsync(id);
+            if (existingTrade == null)
+            {
+                return NotFound($"Trade with Id = {id} not found.");
+            }
+
+            await _tradeService.UpdateTradeAsync(updatedTrade, existingTrade);
+            return Ok();
+        }
+
+
+        [HttpDelete]
+        [Route("api/delete/{id}")]
+        public async Task<IActionResult> DeleteTrade(int id)
+        {
+            var existingTrade = await _tradeService.GetTradeByIdAsync(id);
+            if (existingTrade == null)
+            {
+                return NotFound($"Trade with Id = {id} not found.");
+            }
+
+            await _tradeService.DeleteTradeAsync(id);
             return Ok();
         }
     }
