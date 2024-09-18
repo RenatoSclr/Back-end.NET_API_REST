@@ -1,8 +1,8 @@
 ﻿namespace Dot.Net.WebApi.Domain.IRepositories
 {
-    public interface ICurvePointRepository : IRepository<Bid>
+    public interface ICurvePointRepository : IRepository<CurvePoint>
     {
-        Task UpdateAsync(Bid entity);
+        Task UpdateAsync(CurvePoint entity);
         Task SaveAsync();
     }
 }

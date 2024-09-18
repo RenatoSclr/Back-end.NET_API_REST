@@ -5,7 +5,7 @@ using P7CreateRestApi.Repositories;
 
 namespace Dot.Net.WebApi.Repositories
 {
-    public class CurvePointRepository : Repository<Bid>, ICurvePointRepository
+    public class CurvePointRepository : Repository<CurvePoint>, ICurvePointRepository
     {
         private readonly LocalDbContext _context;
         public CurvePointRepository(LocalDbContext context) : base(context)
@@ -20,7 +20,7 @@ namespace Dot.Net.WebApi.Repositories
         }
 
         
-        public async Task UpdateAsync(Bid entity)
+        public async Task UpdateAsync(CurvePoint entity)
         {
             _context.Update(entity);
             await SaveAsync(); 
