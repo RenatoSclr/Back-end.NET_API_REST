@@ -1,4 +1,7 @@
+using Dot.Net.WebApi.Services;
+using Dot.Net.WebApi.Services.IService;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Domain.DTO;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -6,52 +9,89 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class RuleNameController : ControllerBase
     {
-        // TODO: Inject RuleName service
+        private readonly IRuleNameService _ruleNameService;
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        public RuleNameController(IRuleNameService ruleNameService)
         {
-            // TODO: find all RuleName, add to model
-            return Ok();
+            _ruleNameService = ruleNameService;
         }
 
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddRuleName([FromBody]RuleName trade)
-        {
-            return Ok();
-        }
 
         [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]RuleName trade)
+        [Route("api/get/{id}")]
+        public async Task<IActionResult> GetRuleNameById(int id)
         {
-            // TODO: check data valid and save to db, after saving return RuleName list
-            return Ok();
+            var ruleName = await _ruleNameService.GetRuleNameByIdAsync(id);
+
+            if (ruleName == null)
+            {
+                return NotFound($"RuleName with Id = {id} not found.");
+            }
+
+            var ruleNameDTO = await _ruleNameService.GetRuleNameDTOByIdAsync(id);
+            return Ok(ruleNameDTO);
         }
 
+
         [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+        [Route("api/get")]
+        public async Task<IActionResult> GetAllRuleName()
         {
-            // TODO: get RuleName by Id and to model then show to the form
-            return Ok();
+            var ruleNameDTOs = await _ruleNameService.GetAllRuleNameDTOsAsync();
+            return Ok(ruleNameDTOs);
         }
+
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateRuleName(int id, [FromBody] RuleName rating)
+        [Route("api/create")]
+        public async Task<IActionResult> CreateRuleName([FromBody] RuleNameDTO ruleNameDTO)
         {
-            // TODO: check required fields, if valid call service to update RuleName and return RuleName list
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _ruleNameService.CreateRuleNameAsync(ruleNameDTO);
             return Ok();
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteRuleName(int id)
+
+        [HttpPut]
+        [Route("api/update/{id}")]
+        public async Task<IActionResult> UpdateRuleName(int id, [FromBody] RuleNameDTO updatedRuleName)
         {
-            // TODO: Find RuleName by Id and delete the RuleName, return to Rule list
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != updatedRuleName.Id)
+            {
+                return BadRequest("RuleName ID mismatch.");
+            }
+
+            var existingRuleName = await _ruleNameService.GetRuleNameByIdAsync(id);
+            if (existingRuleName == null)
+            {
+                return NotFound($"RuleName with Id = {id} not found.");
+            }
+
+            await _ruleNameService.UpdateRuleNameAsync(updatedRuleName, existingRuleName);
+            return Ok();
+        }
+
+
+        [HttpDelete]
+        [Route("api/delete/{id}")]
+        public async Task<IActionResult> DeleteRuleName(int id)
+        {
+            var existingRuleName = await _ruleNameService.GetRuleNameByIdAsync(id);
+            if (existingRuleName == null)
+            {
+                return NotFound($"RuleName with Id = {id} not found.");
+            }
+
+            await _ruleNameService.DeleteRuleNameAsync(id);
             return Ok();
         }
     }
