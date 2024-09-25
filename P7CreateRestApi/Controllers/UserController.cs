@@ -1,85 +1,166 @@
-using Dot.Net.WebApi.Domain;
-using Dot.Net.WebApi.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Services.IService;
+using System.Security.Claims;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Controllers
 {
+    
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/user")]
     public class UserController : ControllerBase
     {
-        private UserRepository _userRepository;
+        private readonly IUserService _userService;
 
-        public UserController(UserRepository userRepository)
+        public UserController(IUserService userService)
         {
-            _userRepository = userRepository;
+            _userService = userService;
         }
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] CreateUserDTO createUserDTO)
         {
-            return Ok();
+            
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _userService.CreateUserWithDefaultRoleAsync(createUserDTO.UserDTO, createUserDTO.Password);
+
+            if (result.Succeeded)
+            {
+                return Ok($"User {createUserDTO.UserDTO.UserName} created with role 'User'");
+            }
+            return BadRequest(result.Errors);
+            
         }
 
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddUser([FromBody]User user)
+        [Authorize]
+        [HttpGet("my-account")]
+        public async Task<IActionResult> GetUserSelfData()
         {
-            return Ok();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found.");
+            }
+ 
+            var user = await _userService.GetUserDataAsAdminDTOByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            return Ok(user);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPost("create-admin")]
+        public async Task<IActionResult> CreateUserAsAdmin([FromBody] CreateUserDTO createUserDTO)
+        {
+            var result = await _userService.CreateUserAsAdminAsync(createUserDTO.UserDTO, createUserDTO.Password, createUserDTO.Role);
+
+            if (result.Succeeded)
+            {
+                return Ok($"User {createUserDTO.UserDTO.UserName} created with role {createUserDTO.Role}");
+            }
+            return BadRequest(result.Errors);
+               
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]User user)
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserAsAdminById(string id)
+        {
+            var user = await _userService.GetUserDataAsAdminDTOByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            return Ok(user);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateUserAsAdmin(string id, [FromBody] UserDataAsAdminDTO updateUserDTO)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
+
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var result = await _userService.UpdateUserAsync(user, updateUserDTO);
            
-           _userRepository.Add(user);
-
-            return Ok();
+            if (result.Succeeded)
+            {
+                return Ok($"User {user.UserName} updated successfully."); ;
+            }
+            return BadRequest(result.Errors);
         }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+
+        [Authorize]
+        [HttpPut("update-self")]
+        public async Task<IActionResult> UpdateOwnAccount([FromBody] UpdateUserDTO updateOwnAccountDTO)
         {
-            User user = _userRepository.FindById(id);
-            
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found.");
+            }
+
+            var user = await _userService.GetUserByIdAsync(userId);
             if (user == null)
-                throw new ArgumentException("Invalid user Id:" + id);
+            {
+                return NotFound("User not found.");
+            }
 
-            return Ok();
+            var result = await _userService.UpdateOwnAccountAsync(user, updateOwnAccountDTO);
+           
+            if (result.Succeeded)
+            {
+                return Ok($"Your account {user.UserName} has been updated successfully.");
+            }
+            return BadRequest(result.Errors);
+
         }
 
-        [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateUser(int id, [FromBody] User user)
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
-            return Ok();
-        }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteUser(int id)
-        {
-            User user = _userRepository.FindById(id);
-            
+            var user = await _userService.GetUserByIdAsync(id);
+
             if (user == null)
-                throw new ArgumentException("Invalid user Id:" + id);
+            {
+                return NotFound($"User with Id = {id} not found");
+            }
 
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("/secure/article-details")]
-        public async Task<ActionResult<List<User>>> GetAllUserArticles()
-        {
-            return Ok();
+            await _userService.DeleteUserAsync(user);
+            return Ok("User deleted successfully.");
         }
     }
 }
