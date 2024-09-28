@@ -22,9 +22,17 @@ namespace P7CreateRestApi.Services
 
         public async Task<List<UserDataAsAdminDTO>> GetAllUsersAsync()
         {
-            var users = await _userManager.Users.ToListAsync();
-            var userDataDTOs = await Task.WhenAll(users.Select(u => MapUserToUserDataAsAdminDTO(u)));
-            return userDataDTOs.ToList();
+            var users = await _userManager.Users.AsNoTracking().ToListAsync();
+
+            var userDataDTOs = new List<UserDataAsAdminDTO>();
+
+            foreach (var user in users)
+            {
+                var userData = await MapUserToUserDataAsAdminDTO(user);
+                userDataDTOs.Add(userData);
+            }
+
+            return userDataDTOs;
         }
 
         public async Task<UserDataAsAdminDTO> GetUserDataAsAdminDTOByIdAsync(string id)
