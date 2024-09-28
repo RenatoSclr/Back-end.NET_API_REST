@@ -1,4 +1,4 @@
-﻿namespace P7CreateRestApi.Domain.DTO
+﻿namespace P7CreateRestApi.Domain.DTO.UserDtos
 {
     public class UpdateUserDTO
     {
