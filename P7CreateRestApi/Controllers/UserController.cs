@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.UserDtos;
 using P7CreateRestApi.Services.IService;
 using System.Security.Claims;
 
 namespace P7CreateRestApi.Controllers
 {
-    
+
     [ApiController]
     [Route("api/user")]
     public class UserController : ControllerBase
@@ -27,14 +27,30 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await _userService.CreateUserWithDefaultRoleAsync(createUserDTO.UserDTO, createUserDTO.Password);
+            var result = await _userService.CreateUserWithDefaultRoleAsync(createUserDTO);
 
             if (result.Succeeded)
             {
-                return Ok($"User {createUserDTO.UserDTO.UserName} created with role 'User'");
+                return Ok($"User {createUserDTO.UserName} created with role 'User'");
             }
             return BadRequest(result.Errors);
             
+        }
+
+       
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("create-admin")]
+        public async Task<IActionResult> CreateUserAsAdmin([FromBody] CreateUserAdminDTO createUserDTO)
+        {
+            var result = await _userService.CreateUserAsAdminAsync(createUserDTO);
+
+            if (result.Succeeded)
+            {
+                return Ok($"User {createUserDTO.UserName} created with role {createUserDTO.Roles}");
+            }
+            return BadRequest(result.Errors);
+               
         }
 
         [Authorize]
@@ -46,8 +62,8 @@ namespace P7CreateRestApi.Controllers
             {
                 return Unauthorized("User ID not found.");
             }
- 
-            var user = await _userService.GetUserDataAsAdminDTOByIdAsync(userId);
+
+            var user = await _userService.GetUserDTOByIdAsync(userId);
             if (user == null)
             {
                 return NotFound("User not found.");
@@ -57,24 +73,10 @@ namespace P7CreateRestApi.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("create-admin")]
-        public async Task<IActionResult> CreateUserAsAdmin([FromBody] CreateUserDTO createUserDTO)
-        {
-            var result = await _userService.CreateUserAsAdminAsync(createUserDTO.UserDTO, createUserDTO.Password, createUserDTO.Role);
-
-            if (result.Succeeded)
-            {
-                return Ok($"User {createUserDTO.UserDTO.UserName} created with role {createUserDTO.Role}");
-            }
-            return BadRequest(result.Errors);
-               
-        }
-
-        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _userService.GetAllUsersAsync();
+            var users = await _userService.GetAllUsersForAdminAsync();
             return Ok(users);
         }
 
@@ -82,7 +84,7 @@ namespace P7CreateRestApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserAsAdminById(string id)
         {
-            var user = await _userService.GetUserDataAsAdminDTOByIdAsync(id);
+            var user = await _userService.GetUserAdminDTOByIdAsync(id);
             if (user == null)
             {
                 return NotFound("User not found.");
@@ -93,7 +95,7 @@ namespace P7CreateRestApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateUserAsAdmin(string id, [FromBody] UserDataAsAdminDTO updateUserDTO)
+        public async Task<IActionResult> UpdateUserAsAdmin(string id, [FromBody] UpdateUserAdminDTO updateUserDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -106,7 +108,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("User not found.");
             }
 
-            var result = await _userService.UpdateUserAsync(user, updateUserDTO);
+            var result = await _userService.UpdateUserAdminAsync(user, updateUserDTO);
            
             if (result.Succeeded)
             {
@@ -117,7 +119,7 @@ namespace P7CreateRestApi.Controllers
 
 
         [Authorize]
-        [HttpPut("update-self")]
+        [HttpPut("update-my-account")]
         public async Task<IActionResult> UpdateOwnAccount([FromBody] UpdateUserDTO updateOwnAccountDTO)
         {
             if (!ModelState.IsValid)
@@ -137,7 +139,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("User not found.");
             }
 
-            var result = await _userService.UpdateOwnAccountAsync(user, updateOwnAccountDTO);
+            var result = await _userService.UpdateUserAsync(user, updateOwnAccountDTO);
            
             if (result.Succeeded)
             {

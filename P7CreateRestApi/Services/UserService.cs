@@ -1,7 +1,7 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.UserDtos;
 using P7CreateRestApi.Services.IService;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,25 +20,31 @@ namespace P7CreateRestApi.Services
             _roleManager = roleManager;
         }
 
-        public async Task<List<UserDataAsAdminDTO>> GetAllUsersAsync()
+        public async Task<List<ReadUserAdminDTO>> GetAllUsersForAdminAsync()
         {
             var users = await _userManager.Users.AsNoTracking().ToListAsync();
 
-            var userDataDTOs = new List<UserDataAsAdminDTO>();
+            var userDataDTOs = new List<ReadUserAdminDTO>();
 
             foreach (var user in users)
             {
-                var userData = await MapUserToUserDataAsAdminDTO(user);
+                var userData = await MapUserToReadUserAdminDTO(user);
                 userDataDTOs.Add(userData);
             }
 
             return userDataDTOs;
         }
 
-        public async Task<UserDataAsAdminDTO> GetUserDataAsAdminDTOByIdAsync(string id)
+        public async Task<ReadUserAdminDTO> GetUserAdminDTOByIdAsync(string id)
         {
             var user = await GetUserByIdAsync(id);
-            return  user != null ? await MapUserToUserDataAsAdminDTO(user) : null;
+            return  user != null ? await MapUserToReadUserAdminDTO(user) : null;
+        }
+
+        public async Task<ReadUserDTO> GetUserDTOByIdAsync(string id)
+        {
+            var user = await GetUserByIdAsync(id);
+            return user != null ? await MapUserToReadUserDTO(user) : null;
         }
 
         public async Task<User> GetUserByIdAsync(string id)
@@ -46,11 +52,11 @@ namespace P7CreateRestApi.Services
             return await _userManager.FindByIdAsync(id); 
         }
 
-        public async Task<IdentityResult> CreateUserWithDefaultRoleAsync(UserDTO userDTO, string password)
+        public async Task<IdentityResult> CreateUserWithDefaultRoleAsync(CreateUserDTO createUserDTO)
         {
-            var user = MapUserDTOToUser(userDTO);
+            var user = MapCreateUserDTOToUser(createUserDTO);
 
-            var result = await _userManager.CreateAsync(user, password);
+            var result = await _userManager.CreateAsync(user, createUserDTO.Password);
 
             if (result.Succeeded)
             {
@@ -64,20 +70,27 @@ namespace P7CreateRestApi.Services
             return result;
         }
 
-        public async Task<IdentityResult> CreateUserAsAdminAsync(UserDTO userDTO, string password, string role)
+        public async Task<IdentityResult> CreateUserAsAdminAsync(CreateUserAdminDTO createdUserAdminDTO)
         {
-            var user = MapUserDTOToUser(userDTO);
+            var user = MapCreateUserAdminDTOToUser(createdUserAdminDTO);
 
-            var result = await _userManager.CreateAsync(user, password);
+            var result = await _userManager.CreateAsync(user, createdUserAdminDTO.Password);
 
             if (result.Succeeded)
             {
-                if (!await _roleManager.RoleExistsAsync(role))
+                if (createdUserAdminDTO.Roles != null && createdUserAdminDTO.Roles.Any())
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(role));
-                }
+                    foreach (var role in createdUserAdminDTO.Roles)
+                    {
+                        if (!await _roleManager.RoleExistsAsync(role))
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole(role));
+                        }
 
-                await _userManager.AddToRoleAsync(user, role);
+                        await _userManager.AddToRoleAsync(user, role);
+                    }
+                }
+               
                 
             }
             return result;
@@ -88,16 +101,15 @@ namespace P7CreateRestApi.Services
             return await _userManager.DeleteAsync(user);
         }
 
-        public async Task<IdentityResult> UpdateUserAsync(User user, UserDataAsAdminDTO updateUserAsAdminDTO)
+        public async Task<IdentityResult> UpdateUserAdminAsync(User user, UpdateUserAdminDTO updateUserAdminDTO)
         {
-            user.UserName = updateUserAsAdminDTO.UserName ?? user.UserName;
-            user.Email = updateUserAsAdminDTO.Email ?? user.Email;
-            user.FullName = updateUserAsAdminDTO.FullName ?? user.FullName;
+            user.UserName = updateUserAdminDTO.UserName ?? user.UserName;
+            user.Email = updateUserAdminDTO.Email ?? user.Email;
+            user.FullName = updateUserAdminDTO.FullName ?? user.FullName;
 
-            if (updateUserAsAdminDTO.Roles != null && updateUserAsAdminDTO.Roles.Any())
+            if (updateUserAdminDTO.Roles != null && updateUserAdminDTO.Roles.Any())
             {
-               
-                foreach (var role in updateUserAsAdminDTO.Roles)
+                foreach (var role in updateUserAdminDTO.Roles)
                 {
                     if (!await _roleManager.RoleExistsAsync(role))
                     {
@@ -113,7 +125,7 @@ namespace P7CreateRestApi.Services
                     return removeRolesResult; 
                 }
 
-                var addRolesResult = await _userManager.AddToRolesAsync(user, updateUserAsAdminDTO.Roles);
+                var addRolesResult = await _userManager.AddToRolesAsync(user, updateUserAdminDTO.Roles);
                 if (!addRolesResult.Succeeded)
                 {
                     return addRolesResult; 
@@ -123,35 +135,56 @@ namespace P7CreateRestApi.Services
             return await _userManager.UpdateAsync(user);
         }
 
-        public async Task<IdentityResult> UpdateOwnAccountAsync(User user, UpdateUserDTO updateOwnAccountDTO)
+        public async Task<IdentityResult> UpdateUserAsync(User user, UpdateUserDTO updateUsertDTO)
         {
-            user.UserName = updateOwnAccountDTO.UserName ?? user.UserName;
-            user.Email = updateOwnAccountDTO.Email ?? user.Email;
-            user.FullName = updateOwnAccountDTO.FullName ?? user.FullName;
+            user.UserName = updateUsertDTO.UserName ?? user.UserName;
+            user.Email = updateUsertDTO.Email ?? user.Email;
+            user.FullName = updateUsertDTO.FullName ?? user.FullName;
 
             var result = await _userManager.UpdateAsync(user);
             return result;
         }
 
-        private User MapUserDTOToUser(UserDTO userDTO)
+        private User MapCreateUserDTOToUser(CreateUserDTO createUserDTO)
         {
             return new User
             {
-                UserName = userDTO.UserName,
-                Email = userDTO.Email,
-                FullName = userDTO.FullName
+                UserName = createUserDTO.UserName,
+                Email = createUserDTO.Email,
+                FullName = createUserDTO.FullName,
             };
         }
 
-        private async Task<UserDataAsAdminDTO> MapUserToUserDataAsAdminDTO(User user)
+        private User MapCreateUserAdminDTOToUser(CreateUserAdminDTO createUserAdminDTO)
         {
-            return new UserDataAsAdminDTO
+            return new User
+            {
+                UserName = createUserAdminDTO.UserName,
+                Email = createUserAdminDTO.Email,
+                FullName = createUserAdminDTO.FullName,
+            };
+        }
+
+        private async Task<ReadUserAdminDTO> MapUserToReadUserAdminDTO(User user)
+        {
+            return new ReadUserAdminDTO
             {
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
                 FullName = user.FullName,
                 Roles = await _userManager.GetRolesAsync(user)  
+            };
+        }
+
+        private async Task<ReadUserDTO> MapUserToReadUserDTO(User user)
+        {
+            return new ReadUserDTO
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                FullName = user.FullName,
+                Roles = await _userManager.GetRolesAsync(user)
             };
         }
     }

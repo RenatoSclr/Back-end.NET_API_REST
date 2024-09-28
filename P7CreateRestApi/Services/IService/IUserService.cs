@@ -1,6 +1,6 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Identity;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.UserDtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,13 +8,14 @@ namespace P7CreateRestApi.Services.IService
 {
     public interface IUserService
     {
-        Task<List<UserDataAsAdminDTO>> GetAllUsersAsync();
-        Task<UserDataAsAdminDTO> GetUserDataAsAdminDTOByIdAsync(string id);
+        Task<List<ReadUserAdminDTO>> GetAllUsersForAdminAsync();
+        Task<ReadUserAdminDTO> GetUserAdminDTOByIdAsync(string id);
+        Task<ReadUserDTO> GetUserDTOByIdAsync(string id);
         Task<User> GetUserByIdAsync(string id);
-        Task<IdentityResult> CreateUserAsAdminAsync(UserDTO userDTO, string password, string role);
-        Task<IdentityResult> CreateUserWithDefaultRoleAsync(UserDTO userDTO, string password);
-        Task<IdentityResult> UpdateUserAsync(User user, UserDataAsAdminDTO updateUserAsAdminDTO);
-        Task<IdentityResult> UpdateOwnAccountAsync(User user, UpdateUserDTO updateOwnAccountDTO);
+        Task<IdentityResult> CreateUserAsAdminAsync(CreateUserAdminDTO userDTO);
+        Task<IdentityResult> CreateUserWithDefaultRoleAsync(CreateUserDTO userDTO);
+        Task<IdentityResult> UpdateUserAdminAsync(User user, UpdateUserAdminDTO updateUserAdminDTO);
+        Task<IdentityResult> UpdateUserAsync(User user, UpdateUserDTO updateUserDTO);
         Task<IdentityResult> DeleteUserAsync(User user);
     }
 }
