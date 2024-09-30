@@ -1,19 +1,23 @@
 ﻿using Dot.Net.WebApi.Domain;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.TradeDtos;
 
 namespace Dot.Net.WebApi.Services.IService
 {
     public interface ITradeService
     {
-        Task<List<TradeDTO>> GetAllTradeDTOsAsync();
+        Task<List<ReadTradeAdminDTO>> GetAllTradeDTOsAsAdminAsync();
+        Task<List<ReadTradeDTO>> GetAllTradeDTOsAsUserAsync();
 
-        Task CreateTradeAsync(TradeDTO tradeDTO);
+        Task CreateTradeAsAdminAsync(CreateTradeAdminDTO tradeDTO);
+        Task CreateTradeAsUserAsync(CreateTradeDTO tradeDTO);
 
         Task<Trade> GetTradeByIdAsync(int id);
 
-        Task<TradeDTO> GetTradeDTOByIdAsync(int id);
+        Task<ReadTradeAdminDTO> GetTradeDTOAsAdminByIdAsync(int id);
+        Task<ReadTradeDTO> GetTradeDTOAsUserByIdAsync(int id);
 
-        Task UpdateTradeAsync(TradeDTO tradeDTO, Trade trade);
+        Task UpdateTradeAsAdminAsync(UpdateTradeAdminDTO tradeDTO, Trade trade);
+        Task UpdateTradeAsUserAsync(UpdateTradeDTO tradeDTO, Trade trade);
 
         Task DeleteTradeAsync(int id);
     }

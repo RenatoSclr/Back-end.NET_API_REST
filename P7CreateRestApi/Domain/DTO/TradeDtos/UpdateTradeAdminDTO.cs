@@ -1,8 +1,7 @@
-﻿namespace P7CreateRestApi.Domain.DTO
+﻿namespace P7CreateRestApi.Domain.DTO.TradeDtos
 {
-    public class TradeDTO
+    public class UpdateTradeAdminDTO
     {
-        public int TradeId { get; set; }
         public string Account { get; set; }
         public string AccountType { get; set; }
         public double? BuyQuantity { get; set; }
@@ -15,13 +14,10 @@
         public string Trader { get; set; }
         public string Benchmark { get; set; }
         public string Book { get; set; }
-        public string CreationName { get; set; }
-        public DateTime? CreationDate { get; set; }
         public string RevisionName { get; set; }
         public DateTime? RevisionDate { get; set; }
         public string DealName { get; set; }
         public string DealType { get; set; }
-        public string SourceListId { get; set; }
         public string Side { get; set; }
     }
 }
