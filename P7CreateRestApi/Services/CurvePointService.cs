@@ -2,7 +2,7 @@
 using Dot.Net.WebApi.Domain.IRepositories;
 using Dot.Net.WebApi.Repositories;
 using Dot.Net.WebApi.Services.IService;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.CurvePointDtos;
 
 namespace Dot.Net.WebApi.Services
 {
@@ -15,22 +15,28 @@ namespace Dot.Net.WebApi.Services
             _curvePointRepository = curvePointRepository;
         }
 
-        public async Task<List<CurvePointDTO>> GetAllCurvePointDTOsAsync()
+        public async Task<List<ReadCurvePointAdminDTO>> GetAllCurvePointDTOsAsAdminAsync()
         {
             var curvePointList = await _curvePointRepository.GetAllAsync();
-            return MapToCurvePointDTOList(curvePointList.ToList());
+            return MapToCurvePointAdminDTOList(curvePointList.ToList());
         }
 
-        public async Task CreateCurvePointAsync(CurvePointDTO curvePointDTO)
+        public async Task<List<ReadCurvePointDTO>> GetAllCurvePointDTOsAsUserAsync()
         {
-            var curvePoint = MapToCurvePoint(curvePointDTO);
+            var curvePointList = await _curvePointRepository.GetAllAsync();
+            return MapToCurvePointUserDTOList(curvePointList.ToList());
+        }
+
+        public async Task CreateCurvePointAsAdminAsync(CreateCurvePointAdminDTO curvePointDTO)
+        {
+            var curvePoint = MapCreatedCurvePointDTOToCurvePoint(curvePointDTO);
             await _curvePointRepository.AddAsync(curvePoint);
             await _curvePointRepository.SaveAsync();
         }
 
-        public async Task UpdateCurvePointAsync(CurvePointDTO curvePointDTO, CurvePoint existingCurvePoint)
+        public async Task UpdateCurvePointAsAdminAsync(UpdateCurvePointAdminDTO curvePointDTO, CurvePoint existingCurvePoint)
         {
-            var curvePoint = MapToCurvePoint(curvePointDTO, existingCurvePoint);
+            var curvePoint = MapUpdatedCurvePointDTOToCurvePoint(curvePointDTO, existingCurvePoint);
             await _curvePointRepository.UpdateAsync(curvePoint);
             await _curvePointRepository.SaveAsync();
         }
@@ -41,10 +47,10 @@ namespace Dot.Net.WebApi.Services
         }
 
 
-        public async Task<CurvePointDTO> GetCurvePointDTOByIdAsync(int id)
+        public async Task<ReadCurvePointAdminDTO> GetCurvePointDTOByIdAsync(int id)
         {
             var curvePoint = await _curvePointRepository.GetByIdAsync(id);
-            return MapToCurvePointDTO(curvePoint);
+            return MapToCurvePointAdminDTO(curvePoint);
         }
 
         public async Task DeleteCurvePointAsync(int id)
@@ -54,21 +60,30 @@ namespace Dot.Net.WebApi.Services
         }
 
 
-        private CurvePoint MapToCurvePoint(CurvePointDTO curvePointDTO, CurvePoint existingCurvePoint = null)
+        private CurvePoint MapCreatedCurvePointDTOToCurvePoint(CreateCurvePointAdminDTO curvePointDTO)
         {
-            var curvePoint = existingCurvePoint ?? new CurvePoint();
-            
+            var curvePoint = new CurvePoint();
             curvePoint.CurvePointValue = curvePointDTO.CurvePointDTOValue;
             curvePoint.CurveId = curvePointDTO.CurveDTOId;
             curvePoint.AsOfDate = curvePointDTO.AsOfDate;
-            curvePoint.CreationDate = curvePointDTO.CreationDate;
+            curvePoint.CreationDate = DateTime.Now;
             curvePoint.Term = curvePointDTO.Term;
             return curvePoint;
         }
 
-        private CurvePointDTO MapToCurvePointDTO(CurvePoint curvePoint)
+        private CurvePoint MapUpdatedCurvePointDTOToCurvePoint(UpdateCurvePointAdminDTO curvePointDTO, CurvePoint existingCurvePoint)
         {
-            return new CurvePointDTO
+            var curvePoint = existingCurvePoint;
+            curvePoint.CurvePointValue = curvePointDTO.CurvePointDTOValue;
+            curvePoint.CurveId = curvePointDTO.CurveDTOId;
+            curvePoint.AsOfDate = curvePointDTO.AsOfDate;
+            curvePoint.Term = curvePointDTO.Term;
+            return curvePoint;
+        }
+
+        private ReadCurvePointAdminDTO MapToCurvePointAdminDTO(CurvePoint curvePoint)
+        {
+            return new ReadCurvePointAdminDTO
             {
                 Id = curvePoint.Id,
                 CurvePointDTOValue = curvePoint.CurvePointValue,
@@ -79,15 +94,25 @@ namespace Dot.Net.WebApi.Services
             };
         }
 
-        private List<CurvePointDTO> MapToCurvePointDTOList(List<CurvePoint> curvePointList)
+        private List<ReadCurvePointAdminDTO> MapToCurvePointAdminDTOList(List<CurvePoint> curvePointList)
         {
-            return curvePointList.Select(curvePoint => new CurvePointDTO
+            return curvePointList.Select(curvePoint => new ReadCurvePointAdminDTO
             {
                 Id = curvePoint.Id,
                 CurvePointDTOValue = curvePoint.CurvePointValue,
                 CurveDTOId = curvePoint.CurveId,
                 AsOfDate = curvePoint.AsOfDate,
                 CreationDate = curvePoint.CreationDate,
+                Term = curvePoint.Term
+            }).ToList();
+        }
+
+        private List<ReadCurvePointDTO> MapToCurvePointUserDTOList(List<CurvePoint> curvePointList)
+        {
+            return curvePointList.Select(curvePoint => new ReadCurvePointDTO
+            {
+                CurvePointDTOValue = curvePoint.CurvePointValue,
+                AsOfDate = curvePoint.AsOfDate,
                 Term = curvePoint.Term
             }).ToList();
         }

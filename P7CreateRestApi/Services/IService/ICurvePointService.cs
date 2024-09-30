@@ -1,19 +1,21 @@
 ﻿using Dot.Net.WebApi.Domain;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.CurvePointDtos;
 
 namespace Dot.Net.WebApi.Services.IService
 {
     public interface ICurvePointService
     {
-        Task<List<CurvePointDTO>> GetAllCurvePointDTOsAsync();
+        Task<List<ReadCurvePointAdminDTO>> GetAllCurvePointDTOsAsAdminAsync();
+        Task<List<ReadCurvePointDTO>> GetAllCurvePointDTOsAsUserAsync();
 
-        Task CreateCurvePointAsync(CurvePointDTO bidDTO);
+        Task CreateCurvePointAsAdminAsync(CreateCurvePointAdminDTO bidDTO);
+        
 
         Task<CurvePoint> GetCurvePointByIdAsync(int id);
 
-        Task<CurvePointDTO> GetCurvePointDTOByIdAsync(int id);
+        Task<ReadCurvePointAdminDTO> GetCurvePointDTOByIdAsync(int id);
 
-        Task UpdateCurvePointAsync(CurvePointDTO bidDTO, CurvePoint bid);
+        Task UpdateCurvePointAsAdminAsync(UpdateCurvePointAdminDTO bidDTO, CurvePoint bid);
 
         Task DeleteCurvePointAsync(int id);
     }

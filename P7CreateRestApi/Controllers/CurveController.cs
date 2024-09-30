@@ -1,11 +1,13 @@
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
 using Dot.Net.WebApi.Services.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.CurvePointDtos;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class CurveController : ControllerBase
@@ -18,9 +20,9 @@ namespace Dot.Net.WebApi.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/get/{id}")]
+        [Route("api/admin/get/{id}")]
         public async Task<IActionResult> GetCurvePointById(int id)
         {
             var curvePoint = await _curvePointService.GetCurvePointByIdAsync(id);
@@ -34,42 +36,45 @@ namespace Dot.Net.WebApi.Controllers
             return Ok(curvePointDTO);
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/get")]
-        public async Task<IActionResult> GetAllCurvePoint()
+        [Route("api/admin/get")]
+        public async Task<IActionResult> GetAllCurvePointAsAdmin()
         {
-            var CurvePointDTOs = await _curvePointService.GetAllCurvePointDTOsAsync();
+            var CurvePointDTOs = await _curvePointService.GetAllCurvePointDTOsAsAdminAsync();
             return Ok(CurvePointDTOs);
         }
 
+        [HttpGet]
+        [Route("api/user/get")]
+        public async Task<IActionResult> GetAllCurvePointAsUser()
+        {
+            var CurvePointDTOs = await _curvePointService.GetAllCurvePointDTOsAsUserAsync();
+            return Ok(CurvePointDTOs);
+        }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/create")]
-        public async Task<IActionResult> CreateCurvePoint([FromBody] CurvePointDTO CurvePointDTO)
+        [Route("api/admin/create")]
+        public async Task<IActionResult> CreateCurvePoint([FromBody] CreateCurvePointAdminDTO CurvePointDTO)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            await _curvePointService.CreateCurvePointAsync(CurvePointDTO);
+            await _curvePointService.CreateCurvePointAsAdminAsync(CurvePointDTO);
             return Ok();
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPut]
-        [Route("api/update/{id}")]
-        public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] CurvePointDTO updatedCurvePoint)
+        [Route("api/admin/update/{id}")]
+        public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] UpdateCurvePointAdminDTO updatedCurvePoint)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            if (id != updatedCurvePoint.Id)
-            {
-                return BadRequest("CurvePoint ID mismatch.");
             }
 
             var existingCurvePoint = await _curvePointService.GetCurvePointByIdAsync(id);
@@ -78,13 +83,13 @@ namespace Dot.Net.WebApi.Controllers
                 return NotFound($"CurvePoint with Id = {id} not found.");
             }
 
-            await _curvePointService.UpdateCurvePointAsync(updatedCurvePoint, existingCurvePoint);
+            await _curvePointService.UpdateCurvePointAsAdminAsync(updatedCurvePoint, existingCurvePoint);
             return Ok();
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
-        [Route("api/delete/{id}")]
+        [Route("api/admin/delete/{id}")]
         public async Task<IActionResult> DeleteCurvePoint(int id)
         {
             var existingCurvePoint = await _curvePointService.GetCurvePointByIdAsync(id);
