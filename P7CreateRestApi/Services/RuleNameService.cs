@@ -3,7 +3,7 @@ using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Domain.IRepositories;
 using Dot.Net.WebApi.Repositories;
 using Dot.Net.WebApi.Services.IService;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.RuleNameDtos;
 
 namespace Dot.Net.WebApi.Services
 {
@@ -16,20 +16,26 @@ namespace Dot.Net.WebApi.Services
             _ruleNameRepository = ruleNameRepository;
         }
 
-        public async Task<List<RuleNameDTO>> GetAllRuleNameDTOsAsync()
+        public async Task<List<ReadRuleNameAdminDTO>> GetAllRuleNameDTOsAsAdminAsync()
         {
             var ruleNameList = await _ruleNameRepository.GetAllAsync();
-            return MapToRuleNameDTOList(ruleNameList.ToList());
+            return MapToRuleNameAdminDTOList(ruleNameList.ToList());
         }
 
-        public async Task CreateRuleNameAsync(RuleNameDTO ruleNameDTO)
+        public async Task<List<ReadRuleNameDTO>> GetAllRuleNameDTOsAsUserAsync()
+        {
+            var ruleNameList = await _ruleNameRepository.GetAllAsync();
+            return MapToRuleNameUserDTOList(ruleNameList.ToList());
+        }
+
+        public async Task CreateRuleNameAsAdminAsync(EditRuleNameAdminDTO ruleNameDTO)
         {
             var ruleName = MapToRuleName(ruleNameDTO);
             await _ruleNameRepository.AddAsync(ruleName);
             await _ruleNameRepository.SaveAsync();
         }
 
-        public async Task UpdateRuleNameAsync(RuleNameDTO ruleNameDTO, RuleName existingRuleName)
+        public async Task UpdateRuleNameAsAdminAsync(EditRuleNameAdminDTO ruleNameDTO, RuleName existingRuleName)
         {
             var ruleName = MapToRuleName(ruleNameDTO, existingRuleName);
             await _ruleNameRepository.UpdateAsync(ruleName);
@@ -42,10 +48,16 @@ namespace Dot.Net.WebApi.Services
         }
 
 
-        public async Task<RuleNameDTO> GetRuleNameDTOByIdAsync(int id)
+        public async Task<ReadRuleNameAdminDTO> GetRuleNameDTOAsAdminByIdAsync(int id)
         {
-            var ruleName = await _ruleNameRepository.GetByIdAsync(id);
-            return MapToRuleNameDTO(ruleName);
+            var ruleName = await GetRuleNameByIdAsync(id);
+            return MapToRuleNameAdminDTO(ruleName);
+        }
+
+        public async Task<ReadRuleNameDTO> GetRuleNameDTOAsUserByIdAsync(int id)
+        {
+            var ruleName = await GetRuleNameByIdAsync(id);
+            return MapToRuleNameUserDTO(ruleName);
         }
 
         public async Task DeleteRuleNameAsync(int id)
@@ -55,7 +67,7 @@ namespace Dot.Net.WebApi.Services
         }
 
 
-        private RuleName MapToRuleName(RuleNameDTO ruleNameDTO, RuleName existingRuleName = null)
+        private RuleName MapToRuleName(EditRuleNameAdminDTO ruleNameDTO, RuleName existingRuleName = null)
         {
             var ruleName = existingRuleName ?? new RuleName();
             
@@ -68,9 +80,9 @@ namespace Dot.Net.WebApi.Services
             return ruleName;
         }
 
-        private RuleNameDTO MapToRuleNameDTO(RuleName ruleName)
+        private ReadRuleNameAdminDTO MapToRuleNameAdminDTO(RuleName ruleName)
         {
-            return new RuleNameDTO
+            return new ReadRuleNameAdminDTO
             {
                 Id = ruleName.Id,
                 Name = ruleName.Name,
@@ -82,9 +94,19 @@ namespace Dot.Net.WebApi.Services
             };
         }
 
-        private List<RuleNameDTO> MapToRuleNameDTOList(List<RuleName> ruleNameList)
+        private ReadRuleNameDTO MapToRuleNameUserDTO(RuleName ruleName)
         {
-            return ruleNameList.Select(ruleName => new RuleNameDTO
+            return new ReadRuleNameDTO
+            {
+                Id = ruleName.Id,
+                Name = ruleName.Name,
+                Description = ruleName.Description
+            };
+        }
+
+        private List<ReadRuleNameAdminDTO> MapToRuleNameAdminDTOList(List<RuleName> ruleNameList)
+        {
+            return ruleNameList.Select(ruleName => new ReadRuleNameAdminDTO
             {
                 Id = ruleName.Id,
                 Name = ruleName.Name,
@@ -93,6 +115,16 @@ namespace Dot.Net.WebApi.Services
                 Template = ruleName.Template,
                 SqlStr = ruleName.SqlStr,
                 SqlPart = ruleName.SqlPart
+            }).ToList();
+        }
+
+        private List<ReadRuleNameDTO> MapToRuleNameUserDTOList(List<RuleName> ruleNameList)
+        {
+            return ruleNameList.Select(ruleName => new ReadRuleNameDTO
+            {
+                Id = ruleName.Id,
+                Name = ruleName.Name,
+                Description = ruleName.Description
             }).ToList();
         }
     }

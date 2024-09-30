@@ -1,8 +1,7 @@
-﻿namespace P7CreateRestApi.Domain.DTO
+﻿namespace P7CreateRestApi.Domain.DTO.RuleNameDtos
 {
-    public class RuleNameDTO
+    public class EditRuleNameAdminDTO
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Json { get; set; }
