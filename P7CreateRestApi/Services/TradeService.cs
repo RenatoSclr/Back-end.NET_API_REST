@@ -74,7 +74,6 @@ namespace Dot.Net.WebApi.Services
             trade.RevisionDate = tradeDTO.RevisionDate;
             trade.DealName = tradeDTO.DealName;
             trade.DealType = tradeDTO.DealType;
-            trade.SourceListId = tradeDTO.SourceListId;
             trade.Side = tradeDTO.Side; 
 
             return trade;
@@ -103,7 +102,6 @@ namespace Dot.Net.WebApi.Services
                 RevisionDate = trade.RevisionDate,
                 DealName = trade.DealName,
                 DealType = trade.DealType,
-                SourceListId = trade.SourceListId,
                 Side = trade.Side
         };
         }
@@ -131,7 +129,6 @@ namespace Dot.Net.WebApi.Services
                 RevisionDate = trade.RevisionDate,
                 DealName = trade.DealName,
                 DealType = trade.DealType,
-                SourceListId = trade.SourceListId,
                 Side = trade.Side
             }).ToList();
         }

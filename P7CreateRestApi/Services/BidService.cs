@@ -1,7 +1,7 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Domain.IRepositories;
 using Dot.Net.WebApi.Services.IService;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.BidDtos;
 
 namespace Dot.Net.WebApi.Services
 {
@@ -14,22 +14,42 @@ namespace Dot.Net.WebApi.Services
             _bidRepository = bidRepository;
         }
 
-        public async Task<List<BidDTO>> GetAllBidDTOsAsync()
+        public async Task<List<ReadBidAdminDTO>> GetAllBidDTOsAsAdminAsync()
+        {
+            var bidList = await _bidRepository.GetAllAsync();
+            return MapToBidAdminDTOList(bidList.ToList());
+        }
+
+        public async Task<List<ReadBidDTO>> GetAllBidDTOsAsUserAsync()
         {
             var bidList = await _bidRepository.GetAllAsync();
             return MapToBidDTOList(bidList.ToList());
         }
 
-        public async Task CreateBidAsync(BidDTO bidDTO)
+        public async Task CreateBidAsUserAsync(CreateBidDTO bidDTO)
         {
-            var bid = MapToBid(bidDTO);
+            var bid = MapCreateBidDTOToBid(bidDTO);
             await _bidRepository.AddAsync(bid);
             await _bidRepository.SaveAsync();
         }
 
-        public async Task UpdateBidAsync(BidDTO bidDTO, Bid existingBid)
+        public async Task CreateBidAsAdminAsync(CreateBidAdminDTO bidAdminDTO)
         {
-            var bid = MapToBid(bidDTO, existingBid);
+            var bid = MapCreateBidAdminDTOToBid(bidAdminDTO);
+            await _bidRepository.AddAsync(bid);
+            await _bidRepository.SaveAsync();
+        }
+
+        public async Task UpdateBidAsUserAsync(UpdateBidDTO bidDTO, Bid existingBid)
+        {
+            var bid = MapUpdateBidDTOToBid(bidDTO, existingBid);
+            await _bidRepository.UpdateAsync(bid);
+            await _bidRepository.SaveAsync();
+        }
+
+        public async Task UpdateBidAsAdminAsync(UpdateBidAdminDTO bidAdminDTO, Bid existingBid)
+        {
+            var bid = MapUpdateBidAdminDTOToBid(bidAdminDTO, existingBid);
             await _bidRepository.UpdateAsync(bid);
             await _bidRepository.SaveAsync();
         }
@@ -40,10 +60,16 @@ namespace Dot.Net.WebApi.Services
         }
 
 
-        public async Task<BidDTO> GetBidDTOByIdAsync(int id)
+        public async Task<ReadBidDTO> GetBidDTOByIdAsync(int id)
         {
-            var bid = await _bidRepository.GetByIdAsync(id);
+            var bid = await GetBidByIdAsync(id);
             return MapToBidDTO(bid);
+        }
+
+        public async Task<ReadBidAdminDTO> GetBidAdminDTOByIdAsync(int id)
+        {
+            var bid = await GetBidByIdAsync(id);
+            return MapToBidAdminDTO(bid);
         }
 
         public async Task DeleteBidAsync(int id)
@@ -53,48 +79,99 @@ namespace Dot.Net.WebApi.Services
         }
 
 
-        private Bid MapToBid(BidDTO bidDTO, Bid existingBid = null)
+        private Bid MapCreateBidDTOToBid(CreateBidDTO bidDTO)
         {
-            var bid = existingBid ?? new Bid();
-            bid.Account = bidDTO.Account;
-            bid.BidType = bidDTO.BidDTOType;
-            bid.BidQuantity = bidDTO.BidDTOQuantity;
+            var bid = new Bid();
+            bid.BidQuantity = bidDTO.BidQuantity;
             bid.AskQuantity = bidDTO.AskQuantity;
             bid.Ask = bidDTO.Ask;
-            bid.BidListDate = bidDTO.BidDTOListDate;
-            bid.BidStatus = bidDTO.BidDTOStatus;
-            bid.BidSecurity = bidDTO.BidDTOSecurity;
-            bid.BidValue = bidDTO.BidDTOValue;
-            bid.Benchmark = bidDTO.Benchmark;
-            bid.Trader = bidDTO.Trader;
-            bid.Book = bidDTO.Book;
+            bid.BidSecurity = bidDTO.BidSecurity;
+            bid.BidValue = bidDTO.BidValue;
             bid.Commentary = bidDTO.Commentary;
-            bid.CreationDate = bidDTO.CreationDate;
+            bid.CreationDate = DateTime.Now;
             bid.CreationName = bidDTO.CreationName;
-            bid.RevisionDate = bidDTO.RevisionDate;
-            bid.RevisionName = bidDTO.RevisionName;
-            bid.DealName = bidDTO.DealName;
-            bid.DealType = bidDTO.DealType;
-            bid.SourceListId = bidDTO.SourceListId;
             bid.Side = bidDTO.Side;
-
             return bid;
         }
 
-        private BidDTO MapToBidDTO(Bid bid)
+        private Bid MapUpdateBidDTOToBid(UpdateBidDTO bidDTO, Bid existingBid)
         {
-            return new BidDTO
+            var bid = existingBid;
+            bid.BidQuantity = bidDTO.BidQuantity;
+            bid.AskQuantity = bidDTO.AskQuantity;
+            bid.Ask = bidDTO.Ask;
+            bid.BidSecurity = bidDTO.BidSecurity;
+            bid.BidValue = bidDTO.BidValue;
+            bid.Commentary = bidDTO.Commentary;
+            bid.RevisionName = bidDTO.RevisionName;
+            bid.RevisionDate = DateTime.Now;
+            bid.Side = bidDTO.Side;
+            return bid;
+        }
+
+
+        private Bid MapCreateBidAdminDTOToBid(CreateBidAdminDTO bidDTO)
+        {
+            var bid = new Bid();
+            bid.Account = bidDTO.Account;
+            bid.BidType = bidDTO.BidType;
+            bid.Trader = bidDTO.Trader;
+            bid.BidStatus = bidDTO.BidStatus;
+            bid.Book = bidDTO.Book;
+            bid.BidQuantity = bidDTO.BidQuantity;
+            bid.AskQuantity = bidDTO.AskQuantity;
+            bid.Ask = bidDTO.Ask;
+            bid.Benchmark = bidDTO.Benchmark;
+            bid.BidSecurity = bidDTO.BidSecurity;
+            bid.BidValue = bidDTO.BidValue;
+            bid.Commentary = bidDTO.Commentary;
+            bid.DealName = bidDTO.DealName;
+            bid.DealType = bidDTO.DealType;
+            bid.CreationName = bidDTO.CreationName;
+            bid.CreationDate = DateTime.Now;
+            bid.Side = bidDTO.Side;
+            return bid;
+        }
+
+        private Bid MapUpdateBidAdminDTOToBid(UpdateBidAdminDTO bidDTO, Bid existingBid)
+        {
+            var bid = existingBid;
+            bid.Account = bidDTO.Account;
+            bid.BidType = bidDTO.BidType;
+            bid.Trader = bidDTO.Trader;
+            bid.BidStatus = bidDTO.BidStatus;
+            bid.Book = bidDTO.Book;
+            bid.BidQuantity = bidDTO.BidQuantity;
+            bid.AskQuantity = bidDTO.AskQuantity;
+            bid.Ask = bidDTO.Ask;
+            bid.Benchmark = bidDTO.Benchmark;
+            bid.BidSecurity = bidDTO.BidSecurity;
+            bid.BidValue = bidDTO.BidValue;
+            bid.Commentary = bidDTO.Commentary;
+            bid.DealName = bidDTO.DealName;
+            bid.DealType = bidDTO.DealType;
+            bid.RevisionName = bidDTO.RevisionName;     
+            bid.RevisionDate = DateTime.Now;
+            bid.Side = bidDTO.Side;
+            return bid;
+        }
+
+
+        private ReadBidAdminDTO MapToBidAdminDTO(Bid bid)
+        {
+            return new ReadBidAdminDTO
             {
                 BidDTOId = bid.BidId,
                 Account = bid.Account,
-                BidDTOType = bid.BidType,
-                BidDTOQuantity = bid.BidQuantity,
+                BidType = bid.BidType,
+                BidQuantity = bid.BidQuantity,
+                AskQuantity = bid.AskQuantity,
+                BidValue = bid.BidValue,
                 Ask = bid.Ask,
-                BidDTOListDate = bid.BidListDate,
-                BidDTOStatus = bid.BidStatus,
-                BidDTOSecurity = bid.BidSecurity,
-                BidDTOValue = bid.BidValue,
                 Benchmark = bid.Benchmark,
+                BidListDate = bid.BidListDate,
+                BidStatus = bid.BidStatus,
+                BidSecurity = bid.BidSecurity,
                 Trader = bid.Trader,
                 Book = bid.Book,
                 Commentary = bid.Commentary,
@@ -104,25 +181,39 @@ namespace Dot.Net.WebApi.Services
                 RevisionName = bid.RevisionName,
                 DealName = bid.DealName,
                 DealType = bid.DealType,
-                SourceListId = bid.SourceListId,
+                Side = bid.Side
+            };
+        }
+        private ReadBidDTO MapToBidDTO(Bid bid)
+        {
+            return new ReadBidDTO
+            {
+                BidId = bid.BidId,
+                BidQuantity = bid.BidQuantity,
+                AskQuantity = bid.AskQuantity,
+                BidValue = bid.BidValue,
+                Ask = bid.Ask,
+                BidSecurity = bid.BidSecurity,
+                Commentary = bid.Commentary,
                 Side = bid.Side
             };
         }
 
-        private List<BidDTO> MapToBidDTOList(List<Bid> bidList)
+        private List<ReadBidAdminDTO> MapToBidAdminDTOList(List<Bid> bidList)
         {
-            return bidList.Select(bid => new BidDTO
+            return bidList.Select(bid => new ReadBidAdminDTO
             {
                 BidDTOId = bid.BidId,
                 Account = bid.Account,
-                BidDTOType = bid.BidType,
-                BidDTOQuantity = bid.BidQuantity,
+                BidType = bid.BidType,
+                BidQuantity = bid.BidQuantity,
+                AskQuantity = bid.AskQuantity,
+                BidValue = bid.BidValue,
                 Ask = bid.Ask,
-                BidDTOListDate = bid.BidListDate,
-                BidDTOStatus = bid.BidStatus,
-                BidDTOSecurity = bid.BidSecurity,
-                BidDTOValue = bid.BidValue,
                 Benchmark = bid.Benchmark,
+                BidListDate = bid.BidListDate,
+                BidStatus = bid.BidStatus,
+                BidSecurity = bid.BidSecurity,
                 Trader = bid.Trader,
                 Book = bid.Book,
                 Commentary = bid.Commentary,
@@ -132,7 +223,23 @@ namespace Dot.Net.WebApi.Services
                 RevisionName = bid.RevisionName,
                 DealName = bid.DealName,
                 DealType = bid.DealType,
-                SourceListId = bid.SourceListId,
+                Side = bid.Side
+            }).ToList();
+        }
+
+        private List<ReadBidDTO> MapToBidDTOList(List<Bid> bidList)
+        {
+            return bidList.Select(bid => new ReadBidDTO
+            {
+                BidId = bid.BidId,
+                BidQuantity = bid.BidQuantity,
+                AskQuantity = bid.AskQuantity,
+                BidValue = bid.BidValue,
+                Ask = bid.Ask,
+                CreationName= bid.CreationName,
+                RevisionName= bid.RevisionName,
+                BidSecurity = bid.BidSecurity,
+                Commentary = bid.Commentary,
                 Side = bid.Side
             }).ToList();
         }

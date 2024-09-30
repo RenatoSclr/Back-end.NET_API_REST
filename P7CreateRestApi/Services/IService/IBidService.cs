@@ -1,19 +1,26 @@
 ﻿using Dot.Net.WebApi.Domain;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.BidDtos;
 
 namespace Dot.Net.WebApi.Services.IService
 {
     public interface IBidService
     {
-        Task<List<BidDTO>> GetAllBidDTOsAsync();
+        Task<List<ReadBidAdminDTO>> GetAllBidDTOsAsAdminAsync();
+        Task<List<ReadBidDTO>> GetAllBidDTOsAsUserAsync();
 
-        Task CreateBidAsync(BidDTO bidDTO);
+        Task CreateBidAsUserAsync(CreateBidDTO bidDTO);
+
+        Task CreateBidAsAdminAsync(CreateBidAdminDTO bidAdminDTO);
 
         Task<Bid> GetBidByIdAsync(int id);
 
-        Task<BidDTO> GetBidDTOByIdAsync(int id);
+        Task<ReadBidDTO> GetBidDTOByIdAsync(int id);
 
-        Task UpdateBidAsync(BidDTO bidDTO, Bid bid);
+        Task<ReadBidAdminDTO> GetBidAdminDTOByIdAsync(int id);
+
+        Task UpdateBidAsUserAsync(UpdateBidDTO bidDTO, Bid bid);
+
+        Task UpdateBidAsAdminAsync(UpdateBidAdminDTO bidDTO, Bid bid);
 
         Task DeleteBidAsync(int id);
     }
