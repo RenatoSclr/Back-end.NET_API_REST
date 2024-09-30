@@ -1,7 +1,9 @@
 using Dot.Net.WebApi.Services.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging; 
 using P7CreateRestApi.Domain.DTO.RatingDtos;
+using System.Threading.Tasks;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -11,34 +13,41 @@ namespace Dot.Net.WebApi.Controllers
     public class RatingController : ControllerBase
     {
         private readonly IRatingService _ratingService;
+        private readonly ILogger<RatingController> _logger;
 
-        public RatingController(IRatingService ratingService)
+        public RatingController(IRatingService ratingService, ILogger<RatingController> logger)
         {
             _ratingService = ratingService;
+            _logger = logger; 
         }
-
 
         [HttpGet]
         [Route("api/get/{id}")]
         public async Task<IActionResult> GetRatingById(int id)
         {
+            _logger.LogInformation("Fetching Rating with Id {Id}", id); 
+
             var rating = await _ratingService.GetRatingByIdAsync(id);
 
             if (rating == null)
             {
+                _logger.LogWarning("Rating with Id {Id} not found", id); 
                 return NotFound($"Rating with Id = {id} not found.");
             }
 
             var ratingDTO = await _ratingService.GetRatingDTOByIdAsync(id);
+            _logger.LogInformation("Successfully fetched Rating with Id {Id}", id); 
             return Ok(ratingDTO);
         }
-
 
         [HttpGet]
         [Route("api/get")]
         public async Task<IActionResult> GetAllRating()
         {
+            _logger.LogInformation("Fetching all Ratings"); 
+
             var ratingDTOs = await _ratingService.GetAllRatingDTOsAsync();
+            _logger.LogInformation("Successfully fetched all Ratings"); 
             return Ok(ratingDTOs);
         }
 
@@ -49,10 +58,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Invalid model state for creating Rating"); 
                 return BadRequest(ModelState);
             }
 
+            _logger.LogInformation("Admin is creating a new Rating"); 
             await _ratingService.CreateRatingAsync(ratingDTO);
+            _logger.LogInformation("Successfully created a new Rating"); 
             return Ok();
         }
 
@@ -63,16 +75,21 @@ namespace Dot.Net.WebApi.Controllers
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Invalid model state for updating Rating with Id {Id}", id); 
                 return BadRequest(ModelState);
             }
+
+            _logger.LogInformation("Admin is updating Rating with Id {Id}", id); 
 
             var existingRating = await _ratingService.GetRatingByIdAsync(id);
             if (existingRating == null)
             {
+                _logger.LogWarning("Rating with Id {Id} not found for update", id); 
                 return NotFound($"Bid with Id = {id} not found.");
             }
 
             await _ratingService.UpdateRatingAsync(updatedRating, existingRating);
+            _logger.LogInformation("Successfully updated Rating with Id {Id}", id);
             return Ok();
         }
 
@@ -81,13 +98,17 @@ namespace Dot.Net.WebApi.Controllers
         [Route("api/admin/delete/{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {
+            _logger.LogInformation("Admin is deleting Rating with Id {Id}", id); 
+
             var existingRating = await _ratingService.GetRatingByIdAsync(id);
             if (existingRating == null)
             {
+                _logger.LogWarning("Rating with Id {Id} not found for deletion", id); 
                 return NotFound($"Rating with Id = {id} not found.");
             }
 
             await _ratingService.DeleteRatingAsync(id);
+            _logger.LogInformation("Successfully deleted Rating with Id {Id}", id); 
             return Ok();
         }
     }
