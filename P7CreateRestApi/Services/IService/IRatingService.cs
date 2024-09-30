@@ -1,19 +1,19 @@
 ﻿using Dot.Net.WebApi.Domain;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.RatingDtos;
 
 namespace Dot.Net.WebApi.Services.IService
 {
     public interface IRatingService
     {
-        Task<List<RatingDTO>> GetAllRatingDTOsAsync();
+        Task<List<ReadRatingDTO>> GetAllRatingDTOsAsync();
 
-        Task CreateRatingAsync(RatingDTO ratingDTO);
+        Task CreateRatingAsync(EditRatingAdminDTO ratingDTO);
 
         Task<Rating> GetRatingByIdAsync(int id);
 
-        Task<RatingDTO> GetRatingDTOByIdAsync(int id);
+        Task<ReadRatingDTO> GetRatingDTOByIdAsync(int id);
 
-        Task UpdateRatingAsync(RatingDTO ratingDTO, Rating rating);
+        Task UpdateRatingAsync(EditRatingAdminDTO ratingDTO, Rating rating);
 
         Task DeleteRatingAsync(int id);
     }

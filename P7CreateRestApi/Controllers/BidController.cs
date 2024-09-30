@@ -22,7 +22,7 @@ namespace Dot.Net.WebApi.Controllers
 
         
         [HttpGet]
-        [Route("api/user/get/{id}")]
+        [Route("api/get/{id}")]
         public async Task<IActionResult> GetBidAsUserById(int id)
         {
             var bid = await _bidService.GetBidByIdAsync(id);  
@@ -37,7 +37,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/get")]
+        [Route("api/get")]
         public async Task<IActionResult> GetAllBidAsUser()
         {
             var bidDTOs = await _bidService.GetAllBidDTOsAsUserAsync();
@@ -72,7 +72,7 @@ namespace Dot.Net.WebApi.Controllers
         
 
         [HttpPost]
-        [Route("api/user/create")]
+        [Route("api/create")]
         public async Task<IActionResult> CreateBidAsUser([FromBody] CreateBidDTO bidDTO)
         {
             if (!ModelState.IsValid)
@@ -100,7 +100,7 @@ namespace Dot.Net.WebApi.Controllers
 
 
         [HttpPut]
-        [Route("api/user/update/{id}")]
+        [Route("api/update/{id}")]
         public async Task<IActionResult> UpdateBidAsUser(int id, [FromBody] UpdateBidDTO updatedBid)
         {
             if (!ModelState.IsValid)

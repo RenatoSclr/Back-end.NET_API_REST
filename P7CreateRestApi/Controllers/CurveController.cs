@@ -46,7 +46,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/get")]
+        [Route("api/get")]
         public async Task<IActionResult> GetAllCurvePointAsUser()
         {
             var CurvePointDTOs = await _curvePointService.GetAllCurvePointDTOsAsUserAsync();

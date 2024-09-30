@@ -1,7 +1,7 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Domain.IRepositories;
 using Dot.Net.WebApi.Services.IService;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.RatingDtos;
 
 namespace Dot.Net.WebApi.Services
 {
@@ -14,20 +14,20 @@ namespace Dot.Net.WebApi.Services
             _ratingRepository = ratingRepository;
         }
 
-        public async Task<List<RatingDTO>> GetAllRatingDTOsAsync()
+        public async Task<List<ReadRatingDTO>> GetAllRatingDTOsAsync()
         {
             var ratingList = await _ratingRepository.GetAllAsync();
             return MapToRatingDTOList(ratingList.ToList());
         }
 
-        public async Task CreateRatingAsync(RatingDTO ratingDTO)
+        public async Task CreateRatingAsync(EditRatingAdminDTO ratingDTO)
         {
             var rating = MapToRating(ratingDTO);
             await _ratingRepository.AddAsync(rating);
             await _ratingRepository.SaveAsync();
         }
 
-        public async Task UpdateRatingAsync(RatingDTO ratingDTO, Rating existingRating)
+        public async Task UpdateRatingAsync(EditRatingAdminDTO ratingDTO, Rating existingRating)
         {
             var rating = MapToRating(ratingDTO, existingRating);
             await _ratingRepository.UpdateAsync(rating);
@@ -40,7 +40,7 @@ namespace Dot.Net.WebApi.Services
         }
 
 
-        public async Task<RatingDTO> GetRatingDTOByIdAsync(int id)
+        public async Task<ReadRatingDTO> GetRatingDTOByIdAsync(int id)
         {
             var rating = await _ratingRepository.GetByIdAsync(id);
             return MapToRatingDTO(rating);
@@ -53,7 +53,7 @@ namespace Dot.Net.WebApi.Services
         }
 
 
-        private Rating MapToRating(RatingDTO ratingDTO, Rating existingRating = null)
+        private Rating MapToRating(EditRatingAdminDTO ratingDTO, Rating existingRating = null)
         {
             var rating = existingRating ?? new Rating();
             
@@ -64,9 +64,9 @@ namespace Dot.Net.WebApi.Services
             return rating;
         }
 
-        private RatingDTO MapToRatingDTO(Rating rating)
+        private ReadRatingDTO MapToRatingDTO(Rating rating)
         {
-            return new RatingDTO
+            return new ReadRatingDTO
             {
                 Id = rating.Id,
                 FitchRating = rating.FitchRating,
@@ -76,9 +76,9 @@ namespace Dot.Net.WebApi.Services
             };
         }
 
-        private List<RatingDTO> MapToRatingDTOList(List<Rating> ratingList)
+        private List<ReadRatingDTO> MapToRatingDTOList(List<Rating> ratingList)
         {
-            return ratingList.Select(rating => new RatingDTO
+            return ratingList.Select(rating => new ReadRatingDTO
             {
                 Id = rating.Id,
                 FitchRating = rating.FitchRating,

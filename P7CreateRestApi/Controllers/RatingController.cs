@@ -1,9 +1,11 @@
 using Dot.Net.WebApi.Services.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Domain.DTO;
+using P7CreateRestApi.Domain.DTO.RatingDtos;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class RatingController : ControllerBase
@@ -40,10 +42,10 @@ namespace Dot.Net.WebApi.Controllers
             return Ok(ratingDTOs);
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/create")]
-        public async Task<IActionResult> CreateRating([FromBody] RatingDTO ratingDTO)
+        [Route("api/admin/create")]
+        public async Task<IActionResult> CreateRating([FromBody] EditRatingAdminDTO ratingDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -54,19 +56,14 @@ namespace Dot.Net.WebApi.Controllers
             return Ok();
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPut]
-        [Route("api/update/{id}")]
-        public async Task<IActionResult> UpdateRating(int id, [FromBody] RatingDTO updatedRating)
+        [Route("api/admin/update/{id}")]
+        public async Task<IActionResult> UpdateRating(int id, [FromBody] EditRatingAdminDTO updatedRating)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            if (id != updatedRating.Id)
-            {
-                return BadRequest("Rating ID mismatch.");
             }
 
             var existingRating = await _ratingService.GetRatingByIdAsync(id);
@@ -79,9 +76,9 @@ namespace Dot.Net.WebApi.Controllers
             return Ok();
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
-        [Route("api/delete/{id}")]
+        [Route("api/admin/delete/{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {
             var existingRating = await _ratingService.GetRatingByIdAsync(id);
