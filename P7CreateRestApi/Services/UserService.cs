@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Domain.DTO.UserDtos;
 using P7CreateRestApi.Services.IService;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -90,8 +91,10 @@ namespace P7CreateRestApi.Services
                         await _userManager.AddToRoleAsync(user, role);
                     }
                 }
-               
-                
+                else 
+                {
+                    await _userManager.AddToRoleAsync(user, "User"); 
+                }    
             }
             return result;
         }

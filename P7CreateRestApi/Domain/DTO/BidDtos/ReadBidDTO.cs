@@ -9,8 +9,8 @@
         public double? Ask { get; set; }
         public string? RevisionName { get; set; }
         public string? CreationName { get; set; }
-        public string Commentary { get; set; }
-        public string BidSecurity { get; set; }
-        public string Side { get; set; }
+        public string? Commentary { get; set; }
+        public string? BidSecurity { get; set; }
+        public string? Side { get; set; }
     }
 }

@@ -4,21 +4,60 @@ namespace P7CreateRestApi.Domain.DTO.BidDtos
 {
     public class UpdateBidAdminDTO
     {
-        public string Account { get; set; }
-        public string BidType { get; set; }
-        public string Trader { get; set; }
-        public string BidStatus { get; set; }
-        public string Book { get; set; } 
+        [Required]
+        [StringLength(100)]
+        public string? Account { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string? BidType { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string? Trader { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string? BidStatus { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string? Book { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "BidQuantity must be a positive number.")]
         public double? BidQuantity { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "AskQuantity must be a positive number.")]
         public double? AskQuantity { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "BidValue must be a positive number.")]
         public double? BidValue { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Ask must be a positive number.")]
         public double? Ask { get; set; }
+
+        [StringLength(50)]
         public string? RevisionName { get; set; }
-        public string Benchmark { get; set; }
-        public string BidSecurity { get; set; }
-        public string Commentary { get; set; }
-        public string DealName { get; set; } 
-        public string DealType { get; set; }  
-        public string Side { get; set; } 
+
+        [Required]
+        [StringLength(50)]
+        public string? Benchmark { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string? BidSecurity { get; set; }
+
+        [StringLength(500)]
+        public string? Commentary { get; set; }
+
+        [StringLength(100)]
+        public string? DealName { get; set; }
+
+        [StringLength(50)]
+        public string? DealType { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string? Side { get; set; }
     }
 }
