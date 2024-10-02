@@ -193,6 +193,8 @@ namespace Dot.Net.WebApi.Services
                 AskQuantity = bid.AskQuantity,
                 BidValue = bid.BidValue,
                 Ask = bid.Ask,
+                RevisionName = bid.RevisionName,
+                CreationName = bid.CreationName,
                 BidSecurity = bid.BidSecurity,
                 Commentary = bid.Commentary,
                 Side = bid.Side
