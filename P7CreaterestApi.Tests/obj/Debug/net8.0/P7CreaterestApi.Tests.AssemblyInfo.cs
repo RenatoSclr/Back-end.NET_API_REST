@@ -11,12 +11,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("P7CreaterestApi.Tests")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("P7CreateRestApi.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b2505888d70adcc1a3cb6fd8bf61803b8a6cf28f")]
-[assembly: System.Reflection.AssemblyProductAttribute("P7CreaterestApi.Tests")]
-[assembly: System.Reflection.AssemblyTitleAttribute("P7CreaterestApi.Tests")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f31c2bf6aff49d3846299444d5c6cf0366cc4819")]
+[assembly: System.Reflection.AssemblyProductAttribute("P7CreateRestApi.Tests")]
+[assembly: System.Reflection.AssemblyTitleAttribute("P7CreateRestApi.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Généré par la classe MSBuild WriteCodeFragment.
