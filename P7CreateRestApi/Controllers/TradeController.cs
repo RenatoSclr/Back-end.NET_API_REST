@@ -22,7 +22,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/get/{id}")]
+        [Route("{id}")]
         public async Task<IActionResult> GetTradeAsUserById(int id)
         {
             _logger.LogInformation("Fetching Trade with Id {Id} for user", id);
@@ -41,7 +41,6 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/get")]
         public async Task<IActionResult> GetAllTradeAsUser()
         {
             _logger.LogInformation("User is fetching all trades");
@@ -54,7 +53,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/admin/get/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> GetTradeAsAdminById(int id)
         {
             _logger.LogInformation("Admin is fetching Trade with Id {Id}", id); 
@@ -74,7 +73,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/admin/get")]
+        [Route("admin")]
         public async Task<IActionResult> GetAllTradeAsAdmin()
         {
             _logger.LogInformation("Admin is fetching all trades"); 
@@ -86,7 +85,6 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/create")]
         public async Task<IActionResult> CreateTradeAsUser([FromBody] CreateTradeDTO tradeDTO)
         {
             if (!ModelState.IsValid)
@@ -103,7 +101,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/admin/create")]
+        [Route("admin")]
         public async Task<IActionResult> CreateTradeAsAdmin([FromBody] CreateTradeAdminDTO tradeDTO)
         {
             if (!ModelState.IsValid)
@@ -119,7 +117,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("api/update/{id}")]
+        [Route("{id}")]
         public async Task<IActionResult> UpdateTradeAsUser(int id, [FromBody] UpdateTradeDTO updatedTrade)
         {
             if (!ModelState.IsValid)
@@ -144,7 +142,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut]
-        [Route("api/admin/update/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> UpdateTradeAsAdmin(int id, [FromBody] UpdateTradeAdminDTO updatedTrade)
         {
             if (!ModelState.IsValid)
@@ -169,7 +167,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete]
-        [Route("api/delete/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> DeleteTrade(int id)
         {
             _logger.LogInformation("Admin is deleting Trade with Id {Id}", id); 

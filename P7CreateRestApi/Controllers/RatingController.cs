@@ -9,7 +9,7 @@ namespace Dot.Net.WebApi.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("ratings")]
     public class RatingController : ControllerBase
     {
         private readonly IRatingService _ratingService;
@@ -22,7 +22,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/get/{id}")]
+        [Route("{id}")]
         public async Task<IActionResult> GetRatingById(int id)
         {
             _logger.LogInformation("Fetching Rating with Id {Id}", id); 
@@ -41,7 +41,6 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/get")]
         public async Task<IActionResult> GetAllRating()
         {
             _logger.LogInformation("Fetching all Ratings"); 
@@ -53,7 +52,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/admin/create")]
+        [Route("admin")]
         public async Task<IActionResult> CreateRating([FromBody] EditRatingAdminDTO ratingDTO)
         {
             if (!ModelState.IsValid)
@@ -70,7 +69,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut]
-        [Route("api/admin/update/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> UpdateRating(int id, [FromBody] EditRatingAdminDTO updatedRating)
         {
             if (!ModelState.IsValid)
@@ -95,7 +94,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete]
-        [Route("api/admin/delete/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {
             _logger.LogInformation("Admin is deleting Rating with Id {Id}", id); 

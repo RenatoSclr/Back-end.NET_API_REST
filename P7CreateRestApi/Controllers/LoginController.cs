@@ -25,7 +25,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("api/login")]
+        [HttpPost()]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
             _logger.LogInformation("Login attempt for user: {Username}", loginDTO.Username);  

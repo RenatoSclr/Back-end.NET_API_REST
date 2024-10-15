@@ -10,7 +10,7 @@ namespace Dot.Net.WebApi.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("curves")]
     public class CurveController : ControllerBase
     {
         private readonly ICurvePointService _curvePointService;
@@ -24,7 +24,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/admin/get/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> GetCurvePointById(int id)
         {
             _logger.LogInformation("Fetching CurvePoint with Id {Id}", id);  
@@ -44,7 +44,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/admin/get")]
+        [Route("admin")]
         public async Task<IActionResult> GetAllCurvePointAsAdmin()
         {
             _logger.LogInformation("Fetching all CurvePoints for admin");
@@ -54,7 +54,6 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/get")]
         public async Task<IActionResult> GetAllCurvePointAsUser()
         {
             _logger.LogInformation("Fetching all CurvePoints for user");
@@ -65,7 +64,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/admin/create")]
+        [Route("admin")]
         public async Task<IActionResult> CreateCurvePoint([FromBody] CreateCurvePointAdminDTO CurvePointDTO)
         {
             if (!ModelState.IsValid)
@@ -82,7 +81,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut]
-        [Route("api/admin/update/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] UpdateCurvePointAdminDTO updatedCurvePoint)
         {
             if (!ModelState.IsValid)
@@ -107,7 +106,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete]
-        [Route("api/admin/delete/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> DeleteCurvePoint(int id)
         {
             _logger.LogInformation("Deleting CurvePoint with Id {Id}", id);

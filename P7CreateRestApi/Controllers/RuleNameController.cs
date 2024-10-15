@@ -9,7 +9,7 @@ namespace Dot.Net.WebApi.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("rulenames")]
     public class RuleNameController : ControllerBase
     {
         private readonly IRuleNameService _ruleNameService;
@@ -23,7 +23,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/admin/get/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> GetRuleNameAsAdminById(int id)
         {
             _logger.LogInformation("Admin is fetching RuleName with Id {Id}", id); 
@@ -41,7 +41,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/get/{id}")]
+        [Route("{id}")]
         public async Task<IActionResult> GetRuleNameAsUserById(int id)
         {
             _logger.LogInformation("User is fetching RuleName with Id {Id}", id); 
@@ -61,7 +61,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/admin/get")]
+        [Route("admin")]
         public async Task<IActionResult> GetAllRuleNamesAdmin()
         {
             _logger.LogInformation("Admin is fetching all RuleNames"); 
@@ -72,7 +72,6 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/get")]
         public async Task<IActionResult> GetAllRuleNameAsUser()
         {
             _logger.LogInformation("User is fetching all RuleNames"); 
@@ -84,7 +83,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/create")]
+        [Route("admin")]
         public async Task<IActionResult> CreateRuleName([FromBody] EditRuleNameAdminDTO ruleNameDTO)
         {
             if (!ModelState.IsValid)
@@ -101,7 +100,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut]
-        [Route("api/admin/update/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> UpdateRuleName(int id, [FromBody] EditRuleNameAdminDTO updatedRuleName)
         {
             if (!ModelState.IsValid)
@@ -126,7 +125,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete]
-        [Route("api/admin/delete/{id}")]
+        [Route("admin/{id}")]
         public async Task<IActionResult> DeleteRuleName(int id)
         {
             _logger.LogInformation("Admin is deleting RuleName with Id {Id}", id); 

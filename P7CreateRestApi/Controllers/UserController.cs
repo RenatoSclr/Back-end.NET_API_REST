@@ -1,15 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging; 
+using P7CreateRestApi.Controllers.ControllersExtension;
 using P7CreateRestApi.Domain.DTO.UserDtos;
 using P7CreateRestApi.Services.IService;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace P7CreateRestApi.Controllers
 {
     [ApiController]
-    [Route("api/user")]
+    [Route("users")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -38,12 +37,15 @@ namespace P7CreateRestApi.Controllers
                 _logger.LogInformation("User {UserName} successfully registered.", createUserDTO.UserName); 
                 return Ok($"User {createUserDTO.UserName} created with role 'User'");
             }
-            _logger.LogWarning("User registration failed for {UserName}. Errors: {Errors}", createUserDTO.UserName, result.Errors); 
-            return BadRequest(result.Errors);
+            _logger.LogWarning("User registration failed for {UserName}. Errors: {Errors}", createUserDTO.UserName, result.Errors);
+
+            result.ToModelResult(ModelState);
+
+            return BadRequest(ModelState);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("create-admin")]
+        [HttpPost("admin")]
         public async Task<IActionResult> CreateUserAsAdmin([FromBody] CreateUserAdminDTO createUserDTO)
         {
             _logger.LogInformation("Admin creating a new user {UserName} with roles {Roles}", createUserDTO.UserName, createUserDTO.Roles); 
@@ -54,8 +56,10 @@ namespace P7CreateRestApi.Controllers
                 _logger.LogInformation("Admin successfully created user {UserName} with roles {Roles}", createUserDTO.UserName, createUserDTO.Roles); 
                 return Ok($"User {createUserDTO.UserName} created with role {createUserDTO.Roles}");
             }
-            _logger.LogWarning("Admin failed to create user {UserName}. Errors: {Errors}", createUserDTO.UserName, result.Errors); 
-            return BadRequest(result.Errors);
+            _logger.LogWarning("Admin failed to create user {UserName}. Errors: {Errors}", createUserDTO.UserName, result.Errors);
+
+            result.ToModelResult(ModelState);
+            return BadRequest(ModelState);
         }
 
         [Authorize]
@@ -82,7 +86,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet]
+        [HttpGet("admin")]
         public async Task<IActionResult> GetAllUsers()
         {
             _logger.LogInformation("Admin fetching all users."); 
@@ -92,7 +96,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("{id}")]
+        [HttpGet("admin/{id}")]
         public async Task<IActionResult> GetUserAsAdminById(string id)
         {
             _logger.LogInformation("Admin fetching user by ID {Id}", id); 
@@ -108,7 +112,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("update/{id}")]
+        [HttpPut("admin/{id}")]
         public async Task<IActionResult> UpdateUserAsAdmin(string id, [FromBody] UpdateUserAdminDTO updateUserDTO)
         {
             if (!ModelState.IsValid)
@@ -132,12 +136,14 @@ namespace P7CreateRestApi.Controllers
                 _logger.LogInformation("Successfully updated user with ID {Id}", id); 
                 return Ok($"User {user.UserName} updated successfully.");
             }
-            _logger.LogWarning("Admin failed to update user with ID {Id}. Errors: {Errors}", id, result.Errors); 
-            return BadRequest(result.Errors);
+            _logger.LogWarning("Admin failed to update user with ID {Id}. Errors: {Errors}", id, result.Errors);
+
+            result.ToModelResult(ModelState);
+            return BadRequest(ModelState);
         }
 
         [Authorize]
-        [HttpPut("update-my-account")]
+        [HttpPut("my-account")]
         public async Task<IActionResult> UpdateOwnAccount([FromBody] UpdateUserDTO updateOwnAccountDTO)
         {
             if (!ModelState.IsValid)
@@ -168,12 +174,13 @@ namespace P7CreateRestApi.Controllers
                 _logger.LogInformation("Successfully updated own account for user {UserId}.", userId); 
                 return Ok($"Your account {user.UserName} has been updated successfully.");
             }
-            _logger.LogWarning("Failed to update own account for user {UserId}. Errors: {Errors}", userId, result.Errors); 
-            return BadRequest(result.Errors);
+            _logger.LogWarning("Failed to update own account for user {UserId}. Errors: {Errors}", userId, result.Errors);
+            result.ToModelResult(ModelState);
+            return BadRequest(ModelState);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("admin/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             _logger.LogInformation("Admin attempting to delete user with ID {Id}", id); 
