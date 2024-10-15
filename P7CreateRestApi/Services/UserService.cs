@@ -3,10 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Domain.DTO.UserDtos;
 using P7CreateRestApi.Services.IService;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace P7CreateRestApi.Services
 {
@@ -23,7 +19,7 @@ namespace P7CreateRestApi.Services
 
         public async Task<List<ReadUserAdminDTO>> GetAllUsersForAdminAsync()
         {
-            var users = await _userManager.Users.AsNoTracking().ToListAsync();
+            var users = GetAllUsers();
 
             var userDataDTOs = new List<ReadUserAdminDTO>();
 
@@ -34,6 +30,12 @@ namespace P7CreateRestApi.Services
             }
 
             return userDataDTOs;
+        }
+
+        private List<User> GetAllUsers()
+        {
+            var users =_userManager.Users.AsNoTracking().ToList();
+            return users;
         }
 
         public async Task<ReadUserAdminDTO> GetUserAdminDTOByIdAsync(string id)
