@@ -450,3 +450,4 @@ C:\Users\renat\source\repos\P7_API_REST\P7CreaterestApi.Tests\obj\Debug\net6.0\r
 C:\Users\renat\source\repos\P7_API_REST\P7CreaterestApi.Tests\obj\Debug\net6.0\P7CreateRestApi.Tests.pdb
 C:\Users\renat\source\repos\P7_API_REST\P7CreaterestApi.Tests\obj\Debug\net6.0\P7CreateRestApi.Tests.genruntimeconfig.cache
 C:\Users\renat\source\repos\P7_API_REST\P7CreaterestApi.Tests\obj\Debug\net6.0\ref\P7CreateRestApi.Tests.dll
+C:\Users\renat\source\repos\P7_API_REST\P7CreaterestApi.Tests\bin\Debug\net6.0\xunit.runner.json

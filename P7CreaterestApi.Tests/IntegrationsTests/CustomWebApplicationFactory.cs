@@ -18,6 +18,14 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
         {
             builder.ConfigureServices(services =>
             {
+
+                var descriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(DbContextOptions<LocalDbContext>));
+                if (descriptor != null)
+                {
+                    services.Remove(descriptor);
+                }
+
                 services.AddDbContext<LocalDbContext>(options =>
                 {
                     options.UseInMemoryDatabase($"InMemoryTestDatabase");
