@@ -9,94 +9,81 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Dot.Net.WebApi.Domain;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.AspNetCore.TestHost;
 
 namespace P7CreateRestApi.Tests.IntegrationsTests
 {
-    public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IDisposable
+    public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
-        public HttpClient _client;
-
-        public CustomWebApplicationFactory()
-        {
-            _client = CreateClient(new WebApplicationFactoryClientOptions
-            {
-                AllowAutoRedirect = false
-            });
-
-            CreateAdminUserAsync().GetAwaiter().GetResult();
-        }
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
             {
-                var descriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(DbContextOptions<LocalDbContext>));
-                if (descriptor != null)
+                var sp = services.BuildServiceProvider();
+                using (var scope = sp.CreateScope())
                 {
-                    services.Remove(descriptor);
+                    var scopedServices = scope.ServiceProvider;
+                    var db = scopedServices.GetRequiredService<LocalDbContext>();
+                    var userManager = scopedServices.GetRequiredService<UserManager<User>>();
+                    var roleManager = scopedServices.GetRequiredService<RoleManager<IdentityRole>>();
+
+                    db.Database.EnsureCreated();
+
+                    CreateTestUsers(userManager, roleManager).GetAwaiter().GetResult();
                 }
-
-                services.AddDbContext<LocalDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase("InMemoryTestDatabase");
-                });
-
             });
+
         }
 
-        public async Task CreateAdminUserAsync()
+        private async Task CreateTestUsers(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            using (var scope = Services.CreateScope())
+           
+            if (!await roleManager.RoleExistsAsync("Admin"))
             {
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
 
-                if (!await roleManager.RoleExistsAsync("Admin"))
-                {
-                    await roleManager.CreateAsync(new IdentityRole("Admin"));
-                }
+            if (!await roleManager.RoleExistsAsync("User"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("User"));
+            }
 
-                if (!await roleManager.RoleExistsAsync("User"))
-                {
-                    await roleManager.CreateAsync(new IdentityRole("User"));
-                }
+           
+            var adminUser = await userManager.FindByNameAsync("admin");
+            if (adminUser == null)
+            {
+                adminUser = new User { UserName = "admin", Email = "admin@test.com" };
+                await userManager.CreateAsync(adminUser, "Admin123.");
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
 
-                var userAdmin = new User { UserName = "TestUser", Email = "testuser@test.com" };
-                var resultAdmin = await userManager.CreateAsync(userAdmin, "Admin123.");
-
-                if (resultAdmin.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(userAdmin, "Admin");
-                }
-
-                var user = new User { UserName = "TestBasicUser", Email = "testbasicuser@test.com" };
-                var result = await userManager.CreateAsync(user, "User123.");
-
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(user, "User");
-                }
-
-                
+            
+            var basicUser = await userManager.FindByNameAsync("user");
+            if (basicUser == null)
+            {
+                basicUser = new User { UserName = "user", Email = "user@test.com" };
+                await userManager.CreateAsync(basicUser, "User123.");
+                await userManager.AddToRoleAsync(basicUser, "User");
             }
         }
 
-        public async Task AuthenticateAdminAsync()
+        public async Task AuthenticateAdminAsync(HttpClient _client)
         {
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetJwtAdminAsync());
+            
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetJwtAdminAsync(_client));
         }
 
-        public async Task AuthenticateUserAsync()
+        public async Task AuthenticateUserAsync(HttpClient _client)
         {
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetJwtUserAsync());
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetJwtUserAsync(_client));
         }
 
-        private async Task<string> GetJwtAdminAsync()
+        private async Task<string> GetJwtAdminAsync(HttpClient _client)
         {
             var loginDTO = new LoginDTO
             {
-                Username = "TestUser",
+                Username = "admin",
                 Password = "Admin123."
             };
 
@@ -111,11 +98,11 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
             }
         }
 
-        private async Task<string> GetJwtUserAsync()
+        private async Task<string> GetJwtUserAsync(HttpClient _client)
         {
             var loginDTO = new LoginDTO
             {
-                Username = "TestBasicUser",
+                Username = "user",
                 Password = "User123."
             };
 
@@ -129,21 +116,5 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
                 return json;
             }
         }
-
-        public async Task ClearDatabase()
-        {
-            using (var scope = Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
-
-                dbContext.Bids.RemoveRange(dbContext.Bids); 
-                dbContext.CurvePoints.RemoveRange(dbContext.CurvePoints);
-                dbContext.RuleNames.RemoveRange(dbContext.RuleNames);
-                dbContext.Ratings.RemoveRange(dbContext.Ratings);
-                dbContext.Trades.RemoveRange(dbContext.Trades);
-
-                await dbContext.SaveChangesAsync(); 
-            }
-        } 
     }
 }

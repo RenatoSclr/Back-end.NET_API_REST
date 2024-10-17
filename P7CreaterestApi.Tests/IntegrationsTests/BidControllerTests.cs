@@ -1,4 +1,8 @@
-﻿using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using P7CreateRestApi.Domain.DTO.BidDtos;
 using System;
 using System.Collections.Generic;
@@ -14,10 +18,39 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
     public class BidControllerTests : IClassFixture<CustomWebApplicationFactory>
     {
         private readonly CustomWebApplicationFactory _factory;
+        private HttpClient _client;
 
         public BidControllerTests(CustomWebApplicationFactory factory)
         {
             _factory = factory;
+            _factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddDbContext<LocalDbContext>(options =>
+                    {
+                        options.UseInMemoryDatabase($"InMemoryBidTestDatabase");
+                    });
+
+                    var serviceProvider = services.BuildServiceProvider();
+                    
+                });
+            });
+
+            _client = _factory.CreateClient(new WebApplicationFactoryClientOptions
+            {
+                AllowAutoRedirect = false
+            });
+        }
+
+        private async Task ClearDatabase()
+        {
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
+                dbContext.Bids.RemoveRange(dbContext.Bids);
+                await dbContext.SaveChangesAsync();
+            }
         }
 
         private async Task SeedSampleBidsAsync()
@@ -26,7 +59,7 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
 
             foreach (var bid in sampleBids)
             {
-                await _factory._client.PostAsJsonAsync("/bids", new CreateBidDTO
+                await _client.PostAsJsonAsync("/bids", new CreateBidDTO
                 {
                     BidQuantity = bid.BidQuantity,
                     AskQuantity = bid.AskQuantity,
@@ -119,7 +152,7 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
         public async Task CreateBid_AsUser_ShouldReturnOk()
         {
             // Arrange
-            await _factory.AuthenticateUserAsync();
+            await _factory.AuthenticateUserAsync(_client);
 
             var newBid = new CreateBidDTO
             {
@@ -133,24 +166,25 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
             };
 
             // Act
-            var response = await _factory._client.PostAsJsonAsync("/bids", newBid);
+            var response = await _client.PostAsJsonAsync("/bids", newBid);
 
             // Assert
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //Dispose
+             await ClearDatabase();
         }
 
         [Fact]
         public async Task GetAllBids_HasData_ShouldReturnOkWithData()
         {
             // Arrange
-            await _factory.ClearDatabase();
-
-            await _factory.AuthenticateAdminAsync(); 
+            await _factory.AuthenticateAdminAsync(_client); 
             await SeedSampleBidsAsync(); 
 
             // Act
-            var response = await _factory._client.GetAsync("/bids");
+            var response = await _client.GetAsync("/bids");
 
             // Assert
             response.EnsureSuccessStatusCode();
@@ -159,16 +193,19 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
 
             var sampleBids = GetSampleBids();
             Assert.Equal(sampleBids.Count, bids.Count);
+            //Dispose
+            await ClearDatabase();
+
         }
 
         [Fact]
         public async Task UpdateBid_AsUser_ShouldReturnOk()
         {
             // Arrange
-            await _factory.AuthenticateUserAsync(); 
+            await _factory.AuthenticateUserAsync(_client); 
             await SeedSampleBidsAsync(); 
 
-            var allBidsResponse = await _factory._client.GetAsync("/bids");
+            var allBidsResponse = await _client.GetAsync("/bids");
             var bids = await allBidsResponse.Content.ReadFromJsonAsync<List<ReadBidDTO>>();
             var bidToUpdate = bids[0]; 
 
@@ -185,54 +222,60 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
             };
 
             // Act
-            var response = await _factory._client.PutAsJsonAsync($"/bids/{bidToUpdate.BidId}", updatedBid);
+            var response = await _client.PutAsJsonAsync($"/bids/{bidToUpdate.BidId}", updatedBid);
 
             // Assert
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             // Vérification de la mise à jour
-            var updatedBidResponse = await _factory._client.GetAsync($"/bids/{bidToUpdate.BidId}");
+            var updatedBidResponse = await _client.GetAsync($"/bids/{bidToUpdate.BidId}");
             var updatedBidData = await updatedBidResponse.Content.ReadFromJsonAsync<ReadBidDTO>();
             Assert.Equal(updatedBid.Ask, updatedBidData.Ask);
             Assert.Equal(updatedBid.Commentary, updatedBidData.Commentary);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task DeleteBid_AsAdmin_ShouldReturnOk()
         {
             // Arrange
-            await _factory.AuthenticateAdminAsync(); 
+            await _factory.AuthenticateAdminAsync(_client); 
             await SeedSampleBidsAsync(); 
 
-            var allBidsResponse = await _factory._client.GetAsync("/bids");
+            var allBidsResponse = await _client.GetAsync("/bids");
             var bids = await allBidsResponse.Content.ReadFromJsonAsync<List<ReadBidDTO>>();
             var bidToDelete = bids[0]; 
 
             // Act
-            var response = await _factory._client.DeleteAsync($"/bids/admin/{bidToDelete.BidId}");
+            var response = await _client.DeleteAsync($"/bids/admin/{bidToDelete.BidId}");
 
             // Assert
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var deletedBidResponse = await _factory._client.GetAsync($"/bids/{bidToDelete.BidId}");
+            var deletedBidResponse = await _client.GetAsync($"/bids/{bidToDelete.BidId}");
             Assert.Equal(HttpStatusCode.NotFound, deletedBidResponse.StatusCode);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task GetBidById_AsUser_ShouldReturnOk()
         {
             // Arrange
-            await _factory.AuthenticateUserAsync(); 
+            await _factory.AuthenticateUserAsync(_client); 
             await SeedSampleBidsAsync(); 
 
-            var allBidsResponse = await _factory._client.GetAsync("/bids");
+            var allBidsResponse = await _client.GetAsync("/bids");
             var bids = await allBidsResponse.Content.ReadFromJsonAsync<List<ReadBidDTO>>();
             var bidToGet = bids[0]; 
 
             // Act
-            var response = await _factory._client.GetAsync($"/bids/{bidToGet.BidId}");
+            var response = await _client.GetAsync($"/bids/{bidToGet.BidId}");
 
             // Assert
             response.EnsureSuccessStatusCode();
@@ -244,13 +287,16 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
             Assert.Equal(bidToGet.AskQuantity, bid.AskQuantity);
             Assert.Equal(bidToGet.BidValue, bid.BidValue);
             Assert.Equal(bidToGet.BidSecurity, bid.BidSecurity);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task CreateBid_WithoutRequiredField_ShouldReturnBadRequest()
         {
             // Arrange
-            await _factory.AuthenticateUserAsync(); 
+            await _factory.AuthenticateUserAsync(_client); 
 
             var invalidBid = new CreateBidDTO
             {
@@ -263,17 +309,20 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
             };
 
             // Act
-            var response = await _factory._client.PostAsJsonAsync("/bids", invalidBid);
+            var response = await _client.PostAsJsonAsync("/bids", invalidBid);
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task UpdateBid_WithInvalidId_ShouldReturnNotFound()
         {
             // Arrange
-            await _factory.AuthenticateUserAsync(); 
+            await _factory.AuthenticateUserAsync(_client); 
             var invalidUpdateBid = new UpdateBidDTO
             {
                 BidQuantity = 100.0,
@@ -287,43 +336,52 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
             };
 
             // Act
-            var response = await _factory._client.PutAsJsonAsync("/bids/999999", invalidUpdateBid); 
+            var response = await _client.PutAsJsonAsync("/bids/999999", invalidUpdateBid); 
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task DeleteBid_WithInvalidId_ShouldReturnNotFound()
         {
             // Arrange
-            await _factory.AuthenticateAdminAsync(); 
+            await _factory.AuthenticateAdminAsync(_client); 
 
             // Act
-            var response = await _factory._client.DeleteAsync("/bids/admin/999999"); 
+            var response = await _client.DeleteAsync("/bids/admin/999999"); 
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task GetBidById_WithInvalidId_ShouldReturnNotFound()
         {
             // Arrange
-            await _factory.AuthenticateUserAsync(); 
+            await _factory.AuthenticateUserAsync(_client); 
 
             // Act
-            var response = await _factory._client.GetAsync("/bids/999999"); 
+            var response = await _client.GetAsync("/bids/999999"); 
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task CreateBidAsAdmin_UserWithoutAdminRole_ShouldReturnForbidden()
         {
             // Arrange
-            await _factory.AuthenticateUserAsync(); 
+            await _factory.AuthenticateUserAsync(_client); 
 
             var newBid = new CreateBidAdminDTO
             {
@@ -337,17 +395,20 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
             };
 
             // Act
-            var response = await _factory._client.PostAsJsonAsync("/bids/admin", newBid);
+            var response = await _client.PostAsJsonAsync("/bids/admin", newBid);
 
             // Assert
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task CreateBidAsAdmin_WithAdminRole_ShouldReturnOk()
         {
             // Arrange
-            await _factory.AuthenticateAdminAsync(); 
+            await _factory.AuthenticateAdminAsync(_client); 
 
             var newBid = new CreateBidAdminDTO
             {
@@ -370,24 +431,32 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
             };
 
             // Act
-            var response = await _factory._client.PostAsJsonAsync("/bids/admin", newBid);
+            var response = await _client.PostAsJsonAsync("/bids/admin", newBid);
 
             // Assert
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            //Dispose
+            await ClearDatabase();
         }
 
         [Fact]
         public async Task DeleteBid_NonExistingBid_ShouldReturnNotFound()
         {
             // Arrange
-            await _factory.AuthenticateAdminAsync();
+            await _factory.AuthenticateAdminAsync(_client);
 
             // Act
-            var response = await _factory._client.DeleteAsync("/bids/admin/999999"); // Id non existant
+            var response = await _client.DeleteAsync("/bids/admin/999999"); 
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+            //Dispose
+            await ClearDatabase();
         }
+
+        
     }
 }
