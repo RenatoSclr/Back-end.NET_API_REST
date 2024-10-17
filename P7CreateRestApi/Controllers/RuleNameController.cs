@@ -33,6 +33,7 @@ namespace Dot.Net.WebApi.Controllers
             if (ruleName == null)
             {
                 _logger.LogWarning("RuleName with Id {Id} not found for admin", id);
+                return NotFound();
             }
 
             var ruleNameDTO = await _ruleNameService.GetRuleNameDTOAsAdminByIdAsync(id);

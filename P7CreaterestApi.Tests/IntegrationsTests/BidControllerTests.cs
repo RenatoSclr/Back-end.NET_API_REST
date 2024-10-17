@@ -30,10 +30,7 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
                     services.AddDbContext<LocalDbContext>(options =>
                     {
                         options.UseInMemoryDatabase($"InMemoryBidTestDatabase");
-                    });
-
-                    var serviceProvider = services.BuildServiceProvider();
-                    
+                    });                   
                 });
             });
 
