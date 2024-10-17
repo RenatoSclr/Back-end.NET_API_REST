@@ -2,7 +2,6 @@
 using System.Net.Http.Json;
 using Dot.Net.WebApi.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using P7CreateRestApi.Domain.DTO.RatingDtos;
 
@@ -17,19 +16,6 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
         public RatingControllerTests(CustomWebApplicationFactory factory)
         {
             _factory = factory;
-            _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    services.AddDbContext<LocalDbContext>(options =>
-                    {
-                        options.UseInMemoryDatabase($"InMemoryCurvePointTestDatabase");
-                    });
-
-                });
-            });
-
-
             _client = _factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 AllowAutoRedirect = false

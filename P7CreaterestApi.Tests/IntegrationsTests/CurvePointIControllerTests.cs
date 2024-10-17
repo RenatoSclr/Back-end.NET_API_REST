@@ -3,11 +3,8 @@ using System.Net.Http.Json;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using P7CreateRestApi.Domain.DTO.BidDtos;
 using P7CreateRestApi.Domain.DTO.CurvePointDtos;
-using Xunit;
 
 namespace P7CreateRestApi.Tests.IntegrationsTests
 {
@@ -19,18 +16,6 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
         public CurvePointControllerTests(CustomWebApplicationFactory factory)
         {
             _factory = factory;
-            _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    services.AddDbContext<LocalDbContext>(options =>
-                    {
-                        options.UseInMemoryDatabase($"InMemoryCurvePointTestDatabase");
-                    });
-                   
-                });
-            });
-
             _client = _factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 AllowAutoRedirect = false

@@ -9,8 +9,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Dot.Net.WebApi.Domain;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.AspNetCore.TestHost;
 
 namespace P7CreateRestApi.Tests.IntegrationsTests
 {
@@ -20,6 +18,11 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
         {
             builder.ConfigureServices(services =>
             {
+                services.AddDbContext<LocalDbContext>(options =>
+                {
+                    options.UseInMemoryDatabase($"InMemoryTestDatabase");
+                });
+
                 var sp = services.BuildServiceProvider();
                 using (var scope = sp.CreateScope())
                 {

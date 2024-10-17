@@ -3,9 +3,7 @@ using System.Net.Http.Json;
 using Dot.Net.WebApi.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
 using P7CreateRestApi.Domain.DTO.RuleNameDtos;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Dot.Net.WebApi.Domain;
 
 namespace P7CreateRestApi.Tests.IntegrationsTests
@@ -18,18 +16,6 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
         public RuleNameControllerTests(CustomWebApplicationFactory factory)
         {
             _factory = factory;
-            _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    services.AddDbContext<LocalDbContext>(options =>
-                    {
-                        options.UseInMemoryDatabase($"InMemoryBidTestDatabase");
-                    });
-
-                });
-            });
-
             _client = _factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 AllowAutoRedirect = false

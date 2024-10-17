@@ -1,17 +1,11 @@
 ﻿using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using P7CreateRestApi.Domain.DTO.BidDtos;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
-using Xunit;
+
 
 namespace P7CreateRestApi.Tests.IntegrationsTests
 {
@@ -23,17 +17,6 @@ namespace P7CreateRestApi.Tests.IntegrationsTests
         public BidControllerTests(CustomWebApplicationFactory factory)
         {
             _factory = factory;
-            _factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    services.AddDbContext<LocalDbContext>(options =>
-                    {
-                        options.UseInMemoryDatabase($"InMemoryBidTestDatabase");
-                    });                   
-                });
-            });
-
             _client = _factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 AllowAutoRedirect = false
