@@ -1,6 +1,4 @@
-﻿using Dot.Net.WebApi.Domain;
-
-namespace Dot.Net.WebApi.Domain.IRepositories
+﻿namespace Dot.Net.WebApi.Domain.IRepositories
 {
     public interface IRatingRepository : IRepository<Rating>
     {

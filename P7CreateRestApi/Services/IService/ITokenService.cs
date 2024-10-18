@@ -1,5 +1,4 @@
 ﻿using Dot.Net.WebApi.Domain;
-using System.Threading.Tasks;
 
 namespace P7CreateRestApi.Services.IService
 {

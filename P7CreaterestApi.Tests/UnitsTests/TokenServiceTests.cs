@@ -3,13 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using P7CreateRestApi.Services;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace P7CreateRestApi.Tests.UnitsTests
 {

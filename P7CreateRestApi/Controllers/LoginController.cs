@@ -2,10 +2,8 @@ using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging; 
 using P7CreateRestApi.Domain.DTO;
 using P7CreateRestApi.Services.IService;
-using System.Threading.Tasks;
 
 namespace Dot.Net.WebApi.Controllers
 {

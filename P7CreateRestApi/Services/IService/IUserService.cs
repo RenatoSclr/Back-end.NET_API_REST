@@ -1,8 +1,6 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Identity;
 using P7CreateRestApi.Domain.DTO.UserDtos;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace P7CreateRestApi.Services.IService
 {

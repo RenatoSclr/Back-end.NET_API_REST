@@ -1,7 +1,5 @@
-using Dot.Net.WebApi.Services;
 using Dot.Net.WebApi.Services.IService;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging; 
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Domain.DTO.RuleNameDtos;
 

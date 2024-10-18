@@ -102,6 +102,21 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        await SeedData.SeedAdminUserAsync(services);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while seeding the admin user.");
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

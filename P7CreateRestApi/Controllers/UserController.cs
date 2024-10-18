@@ -23,12 +23,6 @@ namespace P7CreateRestApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO createUserDTO)
         {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model state for user registration."); 
-                return BadRequest(ModelState);
-            }
-
             _logger.LogInformation("Attempting to register user {UserName}", createUserDTO.UserName);
             var result = await _userService.CreateUserWithDefaultRoleAsync(createUserDTO);
 

@@ -3,10 +3,6 @@ using Dot.Net.WebApi.Domain.IRepositories;
 using Dot.Net.WebApi.Services;
 using Moq;
 using P7CreateRestApi.Domain.DTO.TradeDtos;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace P7CreateRestApi.Tests.UnitsTests
 {

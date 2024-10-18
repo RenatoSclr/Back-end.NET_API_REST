@@ -1,13 +1,8 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using P7CreateRestApi.Domain.DTO.UserDtos;
 using P7CreateRestApi.Services;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace P7CreateRestApi.Tests.UnitsTests
 {

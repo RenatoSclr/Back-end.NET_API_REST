@@ -1,6 +1,4 @@
-﻿using Dot.Net.WebApi.Controllers;
-
-namespace Dot.Net.WebApi.Domain.IRepositories
+﻿namespace Dot.Net.WebApi.Domain.IRepositories
 {
     public interface IRuleNameRepository : IRepository<RuleName>
     {

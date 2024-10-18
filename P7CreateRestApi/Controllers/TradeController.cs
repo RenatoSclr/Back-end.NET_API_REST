@@ -1,9 +1,7 @@
 using Dot.Net.WebApi.Services.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging; 
 using P7CreateRestApi.Domain.DTO.TradeDtos;
-using System.Threading.Tasks;
 
 namespace Dot.Net.WebApi.Controllers
 {

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Dot.Net.WebApi.Domain.IRepositories
+﻿namespace Dot.Net.WebApi.Domain.IRepositories
 {
     public interface IRepository<T> where T : class
     {

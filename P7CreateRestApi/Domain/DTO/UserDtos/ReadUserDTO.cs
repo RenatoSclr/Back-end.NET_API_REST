@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace P7CreateRestApi.Domain.DTO.UserDtos
+﻿namespace P7CreateRestApi.Domain.DTO.UserDtos
 {
     public class ReadUserDTO
     {

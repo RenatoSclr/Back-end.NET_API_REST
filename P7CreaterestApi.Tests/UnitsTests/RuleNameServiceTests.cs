@@ -1,13 +1,8 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Domain.IRepositories;
 using Dot.Net.WebApi.Services;
-using Dot.Net.WebApi.Services.IService;
 using Moq;
 using P7CreateRestApi.Domain.DTO.RuleNameDtos;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace P7CreateRestApi.Tests.UnitsTests
 {
