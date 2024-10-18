@@ -1,39 +1,29 @@
-# DotNetEnglishP7
-Student repo for Project 7 of the Back-end developer: .NET path
+# Findexium
 
-The project requires the creation of a database using the Entity Framework Code-First approach. 
+Le produit est un logiciel d'entreprise en ligne destiné à faciliter les transactions pour les entreprises institutionnelles à revenu fixe, qu'elles soient acheteuses ou vendeuses. Ce logiciel a pour objectif d'aider ces entreprises à générer davantage de transactions en automatisant et en optimisant le processus de trading.
 
-Create the entities as outlined in the PDF linked in the Project 7 Course details. Then use Entity Framework's Code-First approach to create the database and all tables required. 
+Le groupe développe également une application appelée PostTrades, qui vise à simplifier la communication et l'utilisation des informations post-transaction entre le front-office et le back-office. L'application permet d'améliorer le flux de travail après la transaction en assurant une gestion fluide des informations financières critiques.
 
-In order for the database to be correctly created, you must meet the prerequisites below and change the connection strings to point to the MSSQL Server running on you your local PC.
+## Instructions d'utilisation de l'application
 
-**Prerequisites**: MSSQL Developer 2019 or Express 2019 has been installed along with Microsoft SQL Server Management Studio (SSMS).
+### Prérequis:
 
-MSSQL: https://www.microsoft.com/en-us/sql-server/sql-server-downloads
+*  **Cloner le repository** : Vous devez cloner le repository sur votre machine locale en utilisant la commande suivante dans votre terminal :
 
-SSMS: https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16
+```bash
+git clone https://github.com/RenatoSclr/Back-end.NET_API_REST.git
+```
+*  **Mettre à jour la base de données** : Une fois le projet cloné, vous devez mettre à jour la base de données. Les migrations sont déjà prêtes dans le projet. Exécutez la commande suivante pour synchroniser la base de données avec le modèle de données actuel :
+```bash
+dotnet ef database update
+```
+Cette commande applique toutes les migrations et prépare la base de données à l'utilisation.
 
-*Note: earlier versions of MSSQL Server should work fine, but have not been tested.
+## Démarrage de l'application
+Après avoir mis à jour la base de données, vous pouvez démarrer l'application. Un utilisateur Administrateur est déjà créé dans la base de données à partir de cette étape. Vous pouvez utiliser ses identifiants de connexion pour commencer à utiliser l'application et accéder aux endpoints Admin, ou simplement vous enregistrer en tant qu'utilisateur lambda :
 
-*In the P7CreateRestApi project, open the appsettings.json file.*
+* **Nom d'utilisateur** : admin
+* **Mot de passe** : Admin123!
 
-You will see the ConnectionStrings section which defines the connection strings for the database used in this application.
-
-      "ConnectionStrings":
-      {
-        "DefaultConnection": "Server=.;Database=YOUR DATABASE NAME;Trusted_Connection=True;MultipleActiveResultSets=true"
-      }
-
-There are different versions of MSSQL (please use MSSQL for this project and not another database) and when setting up the database server, there are different options that will change the configuration, so the connection strings defined may not work.
-
-The connection strings defined in the project are setup for MSSQL Server Standard 2019. The installation has not created an instance name, so the server is just referred to as "." which means the default instance of MSSQL server running on the current machine. The built in Windows user which should be setup in MSSQL server by default during installation.
-
-If you have installed MSSQL Express, the value to use for Server is most likely .\SQLEXPRESS, so for example, your database  connection string would be: -
-
-    "DefaultConnection": "Server=.\SQLEXPRESS;Database=YOUR DATABASE NAME;Trusted_Connection=True;MultipleActiveResultSets=true"
-
-
-You will need to implement **JWT Authentication** and **Authorization** using **Microsoft Identity**. 
-
-If you have trouble connecting, first try to connection using Microsoft SQL Server Management Studio (make sure authentication type  is "Windows Authentication"), or refer to https://sqlserver-help.com/2011/06/19/help-whats-my-sql-server-name/.
-If you still have trouble, please ask your mentor for assistance.
+## Utilisation des API
+Vous pouvez tester les différentes API de l'application via **Swagger** ou **Postman**, qui vous permettra de manipuler les entités disponibles dans l'application, comme les utilisateurs, les Bids, les Trades etc... Pour tous les appels, une authentification est requise. Vous devrez utiliser le token JWT généré après connexion avec les identifiants administrateur ou un autre compte utilisateur.
